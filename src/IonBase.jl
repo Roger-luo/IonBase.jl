@@ -1,4 +1,4 @@
-module IonCLI
+module IonBase
 
 using Comonicon
 using Comonicon.Tools
@@ -24,7 +24,7 @@ const ENV_TOKEN_NAMES = ["GITHUB_TOKEN", "GITHUB_AUTH"]
 
 module PATH
 
-using ..IonCLI
+using ..IonBase
 
 function default_ion_dir()
     if haskey(ENV, "DOT_ION_PATH")
@@ -37,7 +37,7 @@ end
 dot_ion(xs...) = joinpath(default_ion_dir(), xs...)
 
 function templates(xs...)
-    joinpath(dirname(dirname(pathof(IonCLI))), "templates", xs...)
+    joinpath(dirname(dirname(pathof(IonBase))), "templates", xs...)
 end
 
 end
@@ -57,20 +57,5 @@ include("clone.jl")
 include("release.jl")
 include("search.jl")
 include("utils.jl")
-
-
-@main name="ion" doc="The Ion manager."
-
-function julia_main()::Cint
-    try
-        return command_main()
-    catch
-        Base.invokelatest(Base.display_error, Base.catch_stack())
-        return 1
-    end
-end
-
-include("precompile.jl")
-_precompile_()
 
 end

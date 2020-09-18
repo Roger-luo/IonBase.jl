@@ -173,7 +173,7 @@ function register(registry::PRN, project::Project)
 end
 
 function registrator_msg(project)
-    msg = "Released from [Ion CLI](https://github.com/Roger-luo/IonCLI.jl)\n"
+    msg = "Released via [Ion CLI](https://github.com/Roger-luo/IonCLI.jl)\n"
     msg *= "@JuliaRegistrator register"
     if project.branch == "master"
         return msg
