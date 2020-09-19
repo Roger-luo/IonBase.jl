@@ -58,4 +58,7 @@ include("release.jl")
 include("search.jl")
 include("utils.jl")
 
+include("precompile.jl")
+_precompile_()
+
 end

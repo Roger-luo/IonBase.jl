@@ -1,0 +1,17 @@
+function _precompile_()
+    ccall(:jl_generating_output, Cint, ()) == 1 || return nothing
+    isdefined(IonBase, Symbol("#create##kw")) && precompile(Tuple{getfield(IonBase, Symbol("#create##kw")), NamedTuple{(:user, :template), Tuple{String, String}}, typeof(IonBase.create), String})
+    isdefined(IonBase, Symbol("#fetch_repo##kw")) && precompile(Tuple{getfield(IonBase, Symbol("#fetch_repo##kw")), NamedTuple{(:auth,), Tuple{GitHub.OAuth2}}, typeof(IonBase.fetch_repo), Pkg.Types.RegistrySpec, Base.Dict{String, Any}})
+    isdefined(IonBase, Symbol("#fetch_repo_from_url##kw")) && precompile(Tuple{getfield(IonBase, Symbol("#fetch_repo_from_url##kw")), NamedTuple{(:auth,), Tuple{GitHub.OAuth2}}, typeof(IonBase.fetch_repo_from_url), String})
+    precompile(Tuple{typeof(IonBase.PATH.templates), String, String})
+    precompile(Tuple{typeof(IonBase.create_template), IonBase.PDTN{:comonicon}, String, String, Bool})
+    precompile(Tuple{typeof(IonBase.create_template), IonBase.PDTN{:default}, String, String, Bool})
+    precompile(Tuple{typeof(IonBase.create_template), IonBase.PDTN{:test}, String, String, Bool})
+    precompile(Tuple{typeof(IonBase.create_template), IonBase.PDTN{:unknown}, String, String, Bool})
+    precompile(Tuple{typeof(IonBase.is_version_number), String})
+    precompile(Tuple{typeof(IonBase.print_stars), Base.TTY, GitHub.Repo})
+    precompile(Tuple{typeof(IonBase.search), String})
+    precompile(Tuple{typeof(IonBase.search_exact_package), String})
+    precompile(Tuple{typeof(IonBase.search_fuzzy_package), String})
+    precompile(Tuple{typeof(IonBase.update_version!), IonBase.Project, String})
+end
