@@ -13,8 +13,9 @@ build documentation.
 # Args
 
 - `path`: path of the project.
+- `args...`: command line arguments for `docs/make.jl`
 """
-@cast function build(path::String=pwd())
+@cast function build(path::String=pwd(), args...)
     project_dir = dirname(Base.current_project(path))
     docs_dir = joinpath(project_dir, "docs")
 
@@ -25,8 +26,8 @@ build documentation.
     Pkg.instantiate()
     # with ARGS
     old_ARGS = copy(ARGS)
-    empty!(ARGS)
-    push!(ARGS, "local")
+    copy!(ARGS, collect(args))
+    
     Main.include(joinpath(docs_dir, "make.jl"))
     return
 end
