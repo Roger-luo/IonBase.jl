@@ -4,21 +4,8 @@ documentation tools.
 module Doc
 
 using Comonicon
+using Pkg
 using LiveServer: servedocs
-
-function with_ion_image(f, path::String=pwd())
-    project_dir = dirname(Base.current_project(path))
-    docs_dir = joinpath(project_dir, "docs")
-    opts = Base.JLOptions()
-    # we use Ion's image to accelerate loading time
-    # of Documenter and fallback to default system image
-    image_file = unsafe_string(opts.image_file)
-    julia = joinpath(Sys.BINDIR, Base.julia_exename())
-
-    withenv("JULIA_PROJECT"=>docs_dir) do
-        f(julia, image_file, docs_dir)
-    end
-end
 
 """
 build documentation.
@@ -28,9 +15,20 @@ build documentation.
 - `path`: path of the project.
 """
 @cast function build(path::String=pwd())
-    with_ion_image(path) do julia, image_file, docs_dir
-        run(Cmd([julia, "-J$image_file", joinpath(docs_dir, "make.jl")]))
-    end
+    project_dir = dirname(Base.current_project(path))
+    docs_dir = joinpath(project_dir, "docs")
+
+    # with project
+    old_project = Pkg.project().path
+    Pkg.activate(docs_dir)
+    Pkg.develop(path=project_dir)
+    Pkg.instantiate()
+    # with ARGS
+    old_ARGS = copy(ARGS)
+    empty!(ARGS)
+    push!(ARGS, "local")
+    Main.include(joinpath(docs_dir, "make.jl"))
+    return
 end
 
 """
