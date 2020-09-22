@@ -1,14 +1,14 @@
 using SnoopCompile, Pkg
-project = Pkg.project()
-rm(joinpath(dirname(project.path), "src", "precompile.jl"); force=true)
-open(joinpath(dirname(project.path), "src", "precompile.jl"), "w+") do io
+project_path = dirname(dirname(@__FILE__))
+rm(joinpath(project_path, "src", "precompile.jl"); force=true)
+open(joinpath(project_path, "src", "precompile.jl"), "w+") do io
     println(io, "_precompile_() = nothing")
 end
 
 ### Log the compiles
 # This only needs to be run once (to generate "/tmp/comonicon_compiles.log")
 
-SnoopCompile.@snoopc ["--project=$(project.path)"] "/tmp/ion_compiles.log" begin
+SnoopCompile.@snoopc ["--project=$(project_path)"] "/tmp/ion_compiles.log" begin
     using IonBase, Comonicon
 
     cd(tempdir()) do
@@ -21,6 +21,7 @@ SnoopCompile.@snoopc ["--project=$(project.path)"] "/tmp/ion_compiles.log" begin
 
     include(Comonicon.PATH.project(IonBase, "test", "runtests.jl"))
     IonBase.search("Yao")
+    IonBase.Doc.build(Comonicon.PATH.project(IonBase))
 end
 
 ### Parse the compiles and generate precompilation scripts
@@ -29,7 +30,7 @@ end
 data = SnoopCompile.read("/tmp/ion_compiles.log")
 pc = SnoopCompile.parcel(reverse!(data[2]))
 
-open(joinpath(dirname(project.path), "src", "precompile.jl"), "w") do io
+open(joinpath(project_path, "src", "precompile.jl"), "w") do io
     if any(str->occursin("__lookup", str), pc[:IonBase])
         println(io, lookup_kwbody_str)
     end
