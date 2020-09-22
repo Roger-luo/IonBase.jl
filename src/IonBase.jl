@@ -54,6 +54,7 @@ include(joinpath("templates", "from_file.jl"))
 
 include("install.jl")
 include("clone.jl")
+include("doc.jl")
 include("release.jl")
 include("search.jl")
 include("utils.jl")
