@@ -8,7 +8,9 @@ SnoopCompile.@snoopc ["--project=$project"] "/tmp/ion_compiles.log" begin
     include(Comonicon.PATH.project(IonBase, "test", "runtests.jl"))
     IonBase.search("Yao")
 
-    cd(Comonicon.PATH.project(IonBase, "test"))
+    cd(Comonicon.PATH.project(IonBase, "test")) do
+        IonBase.
+    end
 end
 
 ### Parse the compiles and generate precompilation scripts
