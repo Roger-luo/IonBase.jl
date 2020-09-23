@@ -3,8 +3,18 @@ default template.
 """
 const DEFAULT_TEMPLATE = Ref{String}("default")
 
+"""
+default user name.
+"""
+const DEFAULT_USERNAME = Ref{String}("")
+
 function set_default_template(name::String="default")
     DEFAULT_TEMPLATE[] = name
+    return
+end
+
+function set_default_username(name::String="")
+    DEFAULT_USERNAME[] = name
     return
 end
 
@@ -34,7 +44,7 @@ create a project or package.
 
 - `-i, --interactive`: enable to start interactive configuration interface.
 """
-@cast function create(path; user="", interactive::Bool=false, template=DEFAULT_TEMPLATE[])
+@cast function create(path; user=DEFAULT_USERNAME[], interactive::Bool=false, template=DEFAULT_TEMPLATE[])
     if !isabspath(path)
         fullpath = joinpath(pwd(), path)
     else
