@@ -55,6 +55,10 @@ create a project or package.
         error("$path exists, remove it or use a new path")
     end
 
+    # if not specified, check if user.name is set in git
+    if isempty(user)
+        user = readchomp(`git config user.name`)
+    end
     # TODO: use .ionrc to save user configuration
     # and reuse it next time
 
