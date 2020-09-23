@@ -46,6 +46,7 @@ end
 
 function Project(path::String=pwd(); gitconfig=Dict(), branch="master", quiet=false)
     toml = Base.current_project(path)
+    toml === nothing && error("cannot find (Julia)Project.toml in $path")
     path = dirname(toml)
     pkg = Pkg.Types.read_project(toml)
     git = RegistryTools.gitcmd(path, gitconfig)
