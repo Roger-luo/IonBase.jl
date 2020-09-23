@@ -27,8 +27,10 @@ build documentation.
     # with ARGS
     old_ARGS = copy(ARGS)
     copy!(ARGS, collect(args))
-    
+
     Main.include(joinpath(docs_dir, "make.jl"))
+    copy!(ARGS, old_ARGS)
+    Pkg.activate(old_project)
     return
 end
 
