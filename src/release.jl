@@ -143,12 +143,10 @@ end
 function register(registry::String, project::Project)
     if isempty(registry) # registered package
         path = LocalRegistry.find_registry_path(nothing, project.pkg)
-        if basename(path) == "General"
-            return register(PRN("General"), project)
-        end
+        return register(PRN(basename(path)), project)
+    else
+        return register(PRN(registry), project)
     end
-
-    register(PRN(registry), project)
 end
 
 function register(::PRN"General", project::Project)
