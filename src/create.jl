@@ -1,3 +1,13 @@
+"""
+default template.
+"""
+const DEFAULT_TEMPLATE = Ref{String}("default")
+
+function set_default_template(name::String="default")
+    DEFAULT_TEMPLATE[] = name
+    return
+end
+
 struct PDTN{name} end
 
 PDTN(name::String) = PDTN{Symbol(name)}()
@@ -24,7 +34,7 @@ create a project or package.
 
 - `-i, --interactive`: enable to start interactive configuration interface.
 """
-@cast function create(path; user="", interactive::Bool=false, template="default")
+@cast function create(path; user="", interactive::Bool=false, template=DEFAULT_TEMPLATE[])
     if !isabspath(path)
         fullpath = joinpath(pwd(), path)
     else
