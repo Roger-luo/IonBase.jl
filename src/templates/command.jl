@@ -106,35 +106,25 @@ PkgTemplates.gitignore(::ComoniconFiles) = ["/deps/build.log"]
 PkgTemplates.gitignore(::SystemImage) = ["/deps/lib", "/deps/precompile.jl"]
 PkgTemplates.needs_username(::ComoniconFiles) = true
 
-function create_template(::PDTN"comonicon", dir, user, interactive)
-    return Template(;
-        dir=dir,
-        user=user,
-        interactive=interactive,
-        plugins=[
-            Readme(;
-                file = PATH.templates("command", "README.md"),
-                destination="README.md",
-                inline_badges=false
-            ),
-            ComoniconFiles(),
-        ]
-    )
+function template_plugins(::PDTN"comonicon")
+    return [
+        Readme(;
+            file = PATH.templates("command", "README.md"),
+            destination="README.md",
+            inline_badges=false
+        ),
+        ComoniconFiles(),
+    ]
 end
 
-function create_template(::PDTN"comonicon-sysimg", dir, user, interactive)
-    return Template(;
-        dir=dir,
-        user=user,
-        interactive=interactive,
-        plugins=[
-            Readme(;
-                file = PATH.templates("command", "README.md"),
-                destination="README.md",
-                inline_badges=false
-            ),
-            ComoniconFiles(),
-            SystemImage(),
-        ]
-    )
+function template_plugins(::PDTN"comonicon-sysimg")
+    return [
+        Readme(;
+            file = PATH.templates("command", "README.md"),
+            destination="README.md",
+            inline_badges=false
+        ),
+        ComoniconFiles(),
+        SystemImage(),
+    ]
 end

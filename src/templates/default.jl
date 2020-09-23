@@ -1,10 +1,4 @@
-function create_template(::PDTN"default", dir, user, interactive)
-    return Template(;
-        dir=dir,
-        user=user,
-        interactive=interactive,
-    )
-end
+template_plugins(::PDTN"default") = PkgTemplates.Plugin[]
 
 function create_template(::PDTN"test", dir, user, interactive)
     return Template(;

@@ -1,7 +1,30 @@
+template_plugins(::PDTN) = nothing
+
 function create_template(t::PDTN{name}, dir, user, interactive) where name
-    template = search_local_template(t)
-    isnothing(template) && error("template $(name) not found")
-    return template
+    plugins = template_plugins(t)
+    if !isnothing(plugins)
+        if isempty(user)
+            @warn "git host user name not found, please specify " *
+                "using --user to enable GitHub related plugins " *
+                "or use -i/--interactive to configure interactively"
+            return Template(;
+                dir=dir,
+                interactive=interactive,
+                plugins = [plugins..., !Git, !TagBot, !CompatHelper],
+            )
+        else
+            return Template(;
+                dir=dir,
+                user=user,
+                interactive=interactive,
+                plugins = plugins,
+            )
+        end
+    else
+        template = search_local_template(t)
+        isnothing(template) && error("template $(name) not found")
+        return template
+    end
 end
 
 function search_local_template(::PDTN{name}) where name

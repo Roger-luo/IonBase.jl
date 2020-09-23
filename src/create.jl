@@ -57,9 +57,6 @@ create a project or package.
 
     # TODO: use .ionrc to save user configuration
     # and reuse it next time
-    if !interactive && isempty(user)
-        error("user name is required, please either use --user <name> to specify it or create using -i, --interactive")
-    end
 
     t = create_template(PDTN(template), dirname(fullpath), user, interactive)
     t(basename(fullpath))
