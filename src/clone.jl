@@ -34,8 +34,8 @@ end
 
 function _clone(url::String, to::String)
     username = readchomp(`git config user.name`)
-    rp = fetch_repo_from_url(url)
     auth = GitHub.authenticate(read_auth())
+    rp = fetch_repo_from_url(url; auth=auth)
 
     local has_access
     try
