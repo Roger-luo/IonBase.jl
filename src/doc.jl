@@ -48,9 +48,10 @@ serve documentation.
 - `--verbose`: show verbose log.
 - `--doc-env`: is a boolean switch to make the server start by activating the 
     doc environment or not (i.e. the Project.toml in docs/).
+- `-l, --launch-browser`: open documentation in default browser.
 """
-@cast function serve(;verbose::Bool=false, literate="", foldername="docs")
-    servedocs(;verbose=verbose, literate=literate, doc_env=true, foldername=abspath(foldername))
+@cast function serve(;verbose::Bool=false, literate="", foldername="docs", launch_browser::Bool=false)
+    servedocs(;verbose=verbose, literate=literate, doc_env=true, foldername=abspath(foldername), launch_browser=launch_browser)
 end
 
 end
