@@ -1,5 +1,24 @@
 # This file only forward to Pkg's command but under --project by default
 
+function detect_user_julia_binary()
+    # 1. use user specified julia binary
+    if haskey(ENV, "JULIA_EXECUTABLE_PATH")
+        return ENV["JULIA_EXECUTABLE_PATH"]
+    end
+
+    # 2. try `julia` command
+    user_julia = readchomp(Cmd(`command -v julia`; ignorestatus=true))
+    if !isempty(user_julia)
+        return user_julia
+    end
+
+    error(
+        "cannot detect Julia compiler binary, " *
+        "please specify Julia compiler binary " *
+        "via environment variable JULIA_EXECUTABLE_PATH"
+    )
+end
+
 function withproject(command, glob, action_msg, compile_min=true)
     script = "using Pkg;"
     if !glob
@@ -8,8 +27,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     end
 
     script *= command
-
-    exename = joinpath(Sys.BINDIR::String, Base.julia_exename())
+    exename = detect_user_julia_binary()
 
     options = []
     if compile_min
