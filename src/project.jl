@@ -7,16 +7,16 @@ function detect_user_julia_binary()::String
     end
 
     # 2. try `julia` command
-    user_julia = readchomp(Cmd(`command -v julia`; ignorestatus=true))
-    if !isempty(user_julia)
-        return String(user_julia)
+    try
+        user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
+        return Meta.parse(user_julia)
+    catch
+        error(
+            "cannot detect Julia compiler binary, " *
+            "please specify Julia compiler binary " *
+            "via environment variable JULIA_EXECUTABLE_PATH"
+        )
     end
-
-    error(
-        "cannot detect Julia compiler binary, " *
-        "please specify Julia compiler binary " *
-        "via environment variable JULIA_EXECUTABLE_PATH"
-    )
 end
 
 function withproject(command, glob, action_msg, compile_min=true)
