@@ -1,6 +1,6 @@
 # This file only forward to Pkg's command but under --project by default
 
-function detect_user_julia_binary()
+function detect_user_julia_binary()::String
     # 1. use user specified julia binary
     if haskey(ENV, "JULIA_EXECUTABLE_PATH")
         return ENV["JULIA_EXECUTABLE_PATH"]
@@ -9,7 +9,7 @@ function detect_user_julia_binary()
     # 2. try `julia` command
     user_julia = readchomp(Cmd(`command -v julia`; ignorestatus=true))
     if !isempty(user_julia)
-        return user_julia
+        return String(user_julia)
     end
 
     error(
