@@ -133,7 +133,9 @@ release a package.
         try
             register(registry, project)
         catch e
-            reset_last_commit(project; push=true)
+            if version != "current"
+                reset_last_commit(project; push=true)
+            end
             rethrow(e)
         end
     end
