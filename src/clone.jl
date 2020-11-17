@@ -28,7 +28,7 @@ function clone_package(package::String)
     info = search_exact_package(package)
     isnothing(info) && error("cannot find $package in registries")
     uuid, reg, pkginfo = info
-    pkg_toml = Pkg.TOML.parsefile(joinpath(reg.path, pkginfo["path"], "Package.toml"))
+    pkg_toml = TOML.parsefile(joinpath(reg.path, pkginfo["path"], "Package.toml"))
     _clone(pkg_toml["repo"], pkg_toml["name"])
 end
 

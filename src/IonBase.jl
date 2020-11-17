@@ -9,7 +9,8 @@ using GitHub
 using StringDistances
 using OrderedCollections
 using Pkg
-using Pkg.TOML
+using TOML
+using UUIDs
 
 using RegistryTools: gitcmd
 using PkgTemplates: @plugin, @with_kw_noshow
