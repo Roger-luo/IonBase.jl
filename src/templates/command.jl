@@ -82,7 +82,7 @@ function PkgTemplates.hook(p::ComoniconFiles, t::Template, pkg_dir::AbstractStri
     end # system image related files/configs
 
     open(joinpath(pkg_dir, "Comonicon.toml"), "w") do f
-        Pkg.TOML.print(f, toml)
+        TOML.print(f, toml)
     end
 
     open(joinpath(pkg_dir, "deps", "build.jl"); append=true) do f

@@ -232,7 +232,7 @@ function update_version!(project::Project, version)
 
     if !project.quiet
         latest_version = find_max_version(project.pkg.name)
-        
+
         if latest_version === nothing
             println("package not found in local registries")
         else
@@ -276,7 +276,12 @@ end
 function write_version(project::Project, version::VersionNumber)
     project.pkg.version = version
     open(project.toml, "w+") do f
-        Pkg.TOML.print(f, to_dict(project))
+        TOML.print(f, to_dict(project)) do x
+            if x isa UUID || x isa VersionNumber
+                x = string(x)
+            end
+            x
+        end
     end
 end
 
@@ -308,7 +313,7 @@ function push_maybe!(t::Vector, project::Pkg.Types.Project, name::Symbol)
     else
         member = get(project.other, key, nothing)
         if member !== nothing
-            push!(t, key => member)            
+            push!(t, key => member)
         end
     end
     return t

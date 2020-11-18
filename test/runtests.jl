@@ -3,6 +3,7 @@ using Comonicon.PATH
 using Test
 using PkgTemplates
 using Pkg
+using TOML
 
 @testset "create & release" begin
 
@@ -64,7 +65,7 @@ end
     t(basename(test_comonicon))
     comonicon_toml = joinpath(test_comonicon, "Comonicon.toml")
     @test isfile(comonicon_toml)
-    toml = Pkg.TOML.parsefile(comonicon_toml)
+    toml = TOML.parsefile(comonicon_toml)
     @test toml["name"] == "foo"
     @test toml["install"]["optimize"] == 2
     @test toml["install"]["quiet"] == false
@@ -95,7 +96,7 @@ end
     t(basename(test_comonicon))
     comonicon_toml = joinpath(test_comonicon, "Comonicon.toml")
     @test isfile(comonicon_toml)
-    toml = Pkg.TOML.parsefile(comonicon_toml)
+    toml = TOML.parsefile(comonicon_toml)
     @test toml["name"] == "foo"
     @test toml["sysimg"]["filter_stdlibs"] == true
     @test toml["sysimg"]["cpu_target"] == "x86-64"
