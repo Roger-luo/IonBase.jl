@@ -10,5 +10,6 @@
 
 /test/dummy/
 /test/Foo/
+/test/.ion/
 
 Manifest.toml
