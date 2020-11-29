@@ -86,6 +86,7 @@ end
 
 function gitpush(project::Project)
     run(`$(project.git) push origin $(project.branch)`)
+    println(DARK_GRAY_FG("="^80))
 end
 
 function reset_last_commit(project::Project; push=false)
