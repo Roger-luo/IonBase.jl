@@ -11,6 +11,7 @@ using Pkg
 using Pkg.Types: RegistrySpec
 using Comonicon.Tools: prompt, cmd_error
 using ..Options
+using ..SearchCmd: find_max_version
 using ..IonBase: read_github_auth, gitcmd
 
 """

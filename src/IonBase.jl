@@ -74,8 +74,8 @@ include("command/install.jl")
 include("command/activate.jl")
 include("command/pkg.jl")
 include("command/create.jl")
-include("command/release.jl")
 include("command/search.jl")
+include("command/release.jl")
 include("command/clone.jl")
 
 # extensions
