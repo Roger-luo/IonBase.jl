@@ -315,29 +315,59 @@ function release(version::String, path::String=pwd(), registry="", branch="maste
         try
             register(registry, project)
         catch e
-            println(" ", RED_FG("❌"), "  fail to register $(project.pkg.name), error msg:")
             if committed_changes
                 reset_last_commit(project; push=true)
                 println(" ", LIGHT_GREEN_FG("✔"), "  revert version bump commit:")
-            end
-
-            if e isa ErrorException # hide stacktrace
-                cmd_error(e.msg)
-            else
-                rethrow(e)
             end
         end
     end
     return
 end
 
-# function fit_terminal(s::String)
-# end
+function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_done::Base.Event)
+    anim_chars = ["◐","◓","◑","◒"]
+    t = Timer(0; interval=1/10)
+    print_lock = ReentrantLock()
+    printloop_should_exit = interrupted_or_done.set
+    @async begin
+        try
+            count = 1
+            while !printloop_should_exit
+                wait(t)
+                lock(print_lock) do
+                    print("\e[1G  ", CYAN_FG(anim_chars[mod1(count, 4)]))
+                    print("    ")
+                    if !auth.set
+                        print("authenticating...")
+                    elseif !summon.set
+                        print("summoning JuliaRegistrator...")
+                    end
+                end
+                printloop_should_exit = interrupted_or_done.set
+                count += 1
+            end
+        catch e
+            notify(interrupted_or_done)
+            lock(print_lock) do
+                println("\e[1G  ", RED_FG("❌"), "  fail to register $(project.pkg.name), error msg:")
+                println(e.msg)
+            end
+            rethrow(e)
+        end
+    end
+end
 
 function register(::PRN"General", project::Project)
+    auth_done = Base.Event()
+    summon_done = Base.Event()
+    interrupted_or_done = Base.Event()
+
+    useless_animation(auth_done, summon_done, interrupted_or_done)
+
     github_token = read_github_auth()
-    print("\e[1G    authenticating...")
     auth = GitHub.authenticate(github_token)
+    notify(auth_done)
+
     HEAD = read_head(project.git)
     comment_json = Dict{String, Any}(
         "body" => registrator_msg(project),
@@ -353,6 +383,8 @@ function register(::PRN"General", project::Project)
     # println(" ", LIGHT_GREEN_FG("✔"))
     print("\e[1G    summoning JuliaRegistrator...")
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
+    notify(summon_done)
+    notify(interrupted_or_done)
     println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
     println("  ", CYAN_FG(string(comment.html_url)))
     return comment
