@@ -331,7 +331,7 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
     t = Timer(0; interval=1/20)
     print_lock = ReentrantLock()
     printloop_should_exit = interrupted_or_done.set
-    @async begin
+    return @async begin
         try
             count = 1
             while !printloop_should_exit
@@ -345,7 +345,6 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
                     elseif !summon.set
                         print("summoning JuliaRegistrator...")
                     else
-                        println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
                         printloop_should_exit = true
                     end
                 end
@@ -371,7 +370,7 @@ function register(::PRN"General", project::Project)
     summon_done = Base.Event()
     interrupted_or_done = Base.Event()
 
-    useless_animation(auth_done, summon_done, interrupted_or_done)
+    print_task = useless_animation(auth_done, summon_done, interrupted_or_done)
 
     github_token = read_github_auth()
     auth = GitHub.authenticate(github_token)
@@ -394,6 +393,8 @@ function register(::PRN"General", project::Project)
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
     notify(summon_done)
     notify(interrupted_or_done)
+    wait(print_task)
+    println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
     println("  ", CYAN_FG(string(comment.html_url)))
     return comment
 end
