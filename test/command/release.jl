@@ -42,7 +42,7 @@ end
 
 end
 
-project = ReleaseCmd.Project("..")
+project = ReleaseCmd.Project(".")
 response = ReleaseCmd.register("General", project)
 
 response.created_at
