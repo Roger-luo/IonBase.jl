@@ -1,6 +1,7 @@
 # This file only forward to Pkg's command but under --project by default
 module PkgCmd
 
+using Pkg
 using ..InstallCmd
 using Comonicon.Tools: prompt
 using ..Options
@@ -52,7 +53,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     depot_path = get(ENV, "ION_DEPOT_PATH", nothing)
 
     if glob
-        withenv("JULIA_PROJECT"=>nothing) do
+        withenv("JULIA_PROJECT"=>nothing, "JULIA_DEPOT_PATH"=>depot_path) do
             run(Cmd([exename, options...]))
         end
     else
@@ -287,7 +288,7 @@ add a registry
 """
 @cast function add(url::String)
     # NOTE: registry operations are global only
-    Pkg.Registry.add(url)
+    PkgCmd.withproject("Pkg.Registry.add(\"$url\")", true, "add registry $url")
 end
 
 """
@@ -298,7 +299,7 @@ rm a registry
 - `name`: registry name.
 """
 @cast function rm(name::String)
-    Pkg.Registry.rm(name)
+    PkgCmd.withproject("Pkg.Registry.rm(\"$name\")", true, "rm registry $name")
 end
 
 """
@@ -309,7 +310,7 @@ update a registry
 - `name`: registry name.
 """
 @cast function update(name::String)
-    Pkg.Registry.update(name)
+    PkgCmd.withproject("Pkg.Registry.update(\"$name\")", true, "update registry $name")
 end
 
 end
