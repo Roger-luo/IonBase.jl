@@ -326,6 +326,8 @@ end
 
 function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_done::Base.Event)
     anim_chars = ["◐","◓","◑","◒"]
+    ansi_enablecursor = "\e[?25h"
+    ansi_disablecursor = "\e[?25l"
     t = Timer(0; interval=1/20)
     print_lock = ReentrantLock()
     printloop_should_exit = interrupted_or_done.set
@@ -335,6 +337,7 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
             while !printloop_should_exit
                 wait(t)
                 lock(print_lock) do
+                    print(ansi_disablecursor)
                     print("\e[1G  ", CYAN_FG(anim_chars[mod1(count, 4)]))
                     print("    ")
                     if !auth.set
@@ -353,6 +356,8 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
                 println(e.msg)
             end
             rethrow(e)
+        finally
+            print(ansi_enablecursor)
         end
     end
 end
