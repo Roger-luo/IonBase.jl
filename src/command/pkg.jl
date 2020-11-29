@@ -6,31 +6,6 @@ using ..InstallCmd
 using Comonicon.Tools: prompt, cmd_error
 using ..Options
 
-function detect_user_julia_binary()::String
-    # 1. use user specified julia binary
-    if haskey(ENV, "JULIA_EXECUTABLE_PATH")
-        return ENV["JULIA_EXECUTABLE_PATH"]
-    end
-
-    # read from ion.toml
-    ion = Options.read()
-    if !isnothing(ion.julia.active)
-        return ion.julia.active
-    end
-
-    # 3. try `julia` command
-    try
-        user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
-        return Meta.parse(user_julia)
-    catch
-        cmd_error(
-            "cannot detect julia binary, " *
-            "please install julia using: ion install julia [--version=stable] " *
-            "or specify via environment variable JULIA_EXECUTABLE_PATH"
-        )
-    end
-end
-
 function withproject(command, glob, action_msg, compile_min=true)
     script = "using Pkg;"
     if !glob
@@ -42,7 +17,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     end
 
     script *= command
-    exename = detect_user_julia_binary()
+    exename = Options.active_julia_bin()
 
     options = []
     if compile_min

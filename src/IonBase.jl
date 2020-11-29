@@ -58,6 +58,15 @@ function read_github_auth()
     return auth
 end
 
+function gitcmd(path::AbstractString; kw...)
+    cmd = ["git", "-C", path]
+    for (n,v) in kw
+        push!(cmd, "-c")
+        push!(cmd, "$n=$v")
+    end
+    return Cmd(cmd)
+end
+
 include("config.jl")
 
 # level 1 commands

@@ -1,16 +1,17 @@
 module ReleaseCmd
 
-using LocalRegistry
-using RegistryTools
+using LibGit2
 using OrderedCollections
 using UUIDs
 using GitHub
+using Crayons.Box
 using TOML
 using Pkg
 
+using Pkg.Types: RegistrySpec
 using Comonicon.Tools: prompt, cmd_error
-using RegistryTools: gitcmd
-using ..IonBase: read_github_auth
+using ..Options
+using ..IonBase: read_github_auth, gitcmd
 
 """
     PRN{name}
@@ -53,18 +54,19 @@ struct Project
     path::String
     toml::String
     pkg::Pkg.Types.Project
+    ion::Options.Ion
     git::Cmd
     branch::String
     quiet::Bool
 end
 
-function Project(path::String=pwd(); gitconfig=Dict(), branch="master", quiet=false)
+function Project(path::String=pwd(); branch="master", quiet=false, ion::Options.Ion=Options.read())
     toml = Base.current_project(path)
     toml === nothing && cmd_error("cannot find (Julia)Project.toml in $path")
     path = dirname(toml)
     pkg = Pkg.Types.read_project(toml)
-    git = RegistryTools.gitcmd(path, gitconfig)
-    return Project(path, toml, pkg, git, branch, quiet)
+    git = gitcmd(path)
+    return Project(path, toml, pkg, ion, git, branch, quiet)
 end
 
 Base.show(io::IO, p::Project) = print(io, "Project(", p.path, ")")
@@ -78,19 +80,20 @@ function commit_toml(project::Project; push::Bool=false)
     version_number = project.pkg.version
     run(`$git add $(project.toml)`)
     run(`$git commit -m"bump version to $version_number"`)
+    push && gitpush(project)
+    return
+end
 
-    if push
-        run(`$git push origin $(project.branch)`)
-    end
+function gitpush(project::Project)
+    run(`$(project.git) push origin $(project.branch)`)
 end
 
 function reset_last_commit(project::Project; push=false)
     git = project.git
     run(`$git revert --no-edit --no-commit HEAD`)
     run(`$git commit -m "revert version bump due to an error occured in IonCLI"`)
-    if push
-        run(`$git push origin $(project.branch)`)
-    end
+    push && gitpush(project)
+    return
 end
 
 function checkout(f, p::Project)
@@ -108,9 +111,40 @@ function checkout(f, p::Project)
     end
 end
 
+function collect_registers(project::Project)
+    depots = Options.active_julia_depots(project.ion)
+    isempty(depots) && return RegistrySpec[]
+    return RegistrySpec[r for d in depots for r in Pkg.Types.collect_registries(d)]
+end
+
+function query_project_registry(project::Project)
+    registries = collect_registers(project)
+
+    matches = filter(registries) do rs::RegistrySpec
+        d = Pkg.Types.read_registry(joinpath(rs.path, "Registry.toml"))
+        haskey(d["packages"], string(project.pkg.uuid))
+    end
+
+    isempty(matches) && return
+    return matches
+end
+
 function register(registry::String, project::Project)
     if isempty(registry) # registered package
-        path = LocalRegistry.find_registry_path(nothing, project.pkg)
+        matches = query_project_registry(project)
+        matches === nothing && cmd_error(
+            "$(project.pkg.name) is not registered " *
+            "in local registries, please specify " *
+            "registry name using --registry=<name>"
+        )
+
+        length(matches) == 1 || cmd_error(
+            "this package is registered in the following registries: " *
+            join([isnothing(each.name) ? "unknown" : each.name for each in matches], ", ") *
+            "please specify registry name using --registry=<name>"
+        )
+
+        path = first(matches).path
         return register(PRN(basename(path)), project)
     else
         return register(PRN(registry), project)
@@ -123,7 +157,8 @@ end
 
 function registrator_msg(project)
     msg = "Released via [Ion CLI](https://github.com/Roger-luo/IonCLI.jl)\n"
-    msg *= "@JuliaRegistrator register"
+    # msg *= "@JuliaRegistrator register"
+    msg *= "testing"
     if project.branch == "master"
         return msg
     else
@@ -210,7 +245,7 @@ end
 
 function write_version(project::Project, version::VersionNumber)
     project.pkg.version = version
-    open(project.toml, "w+") do f
+    open(project.toml, "w+") do f # following whatever Pkg does
         TOML.print(f, to_dict(project); sorted=true, by=key -> (Pkg.Types.project_key_order(key), key)) do x
             if x isa UUID || x isa VersionNumber
                 x = string(x)
@@ -260,26 +295,41 @@ function release(version::String, path::String=pwd(), registry="", branch="maste
     # so the JuliaRegistrator can find
     # it later
     checkout(project) do
-        if LocalRegistry.is_dirty(project.path, Dict())
+        if LibGit2.isdirty(LibGit2.GitRepo(project.path))
             cmd_error("package repository is dirty, please commit or stash changes.")
         end
 
+        committed_changes = false
         if version != "current"
             update_version!(project, version)
             commit_toml(project; push=true)
+            committed_changes = true
+        else
+            # make sure we sync with remote
+            gitpush(project)
         end
 
         try
             register(registry, project)
         catch e
-            if version != "current"
+            println(" ", RED_FG("❌"), "  fail to register $(project.pkg.name), error msg:")
+            if committed_changes
                 reset_last_commit(project; push=true)
+                println(" ", LIGHT_GREEN_FG("✔"), "  revert version bump commit:")
             end
-            rethrow(e)
+
+            if e isa ErrorException # hide stacktrace
+                cmd_error(e)
+            else
+                rethrow(e)
+            end
         end
     end
     return
 end
+
+# function fit_terminal(s::String)
+# end
 
 function register(::PRN"General", project::Project)
     github_token = read_github_auth()
@@ -295,8 +345,9 @@ function register(::PRN"General", project::Project)
     end
 
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
-    println(comment)
-    return
+    println(" ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
+    println("  ", CYAN_FG(string(comment.html_url)))
+    return comment
 end
 
 end
@@ -318,7 +369,7 @@ release a package.
 
 - `-b, --branch <branch name>`: branch you want to register.
 """
-@cast function release(version::String, path::String=pwd(); registry="", branch="master")
+@cast function release(version::String="current", path::String=pwd(); registry="", branch="master")
     ReleaseCmd.release(version, path, registry, branch)
     return
 end

@@ -3,6 +3,7 @@ module TestRelease
 using Test
 using Pkg
 using IonBase
+using UUIDs
 using IonBase.ReleaseCmd
 
 include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
@@ -32,6 +33,18 @@ include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
     ReleaseCmd.update_version!(project, "major")
     @test project.pkg.version == v"1.0.0"
     @test Pkg.Types.read_project(joinpath(basic_project, "Project.toml")).version == v"1.0.0"
+
+    project = ReleaseCmd.Project("..", quiet=true)
+    matches = ReleaseCmd.query_project_registry(project)
+    @test length(matches) == 1
+    @test first(matches).uuid == UUID("23338594-aafe-5451-b93e-139f81909106")
 end
 
 end
+
+project = ReleaseCmd.Project("..")
+response = ReleaseCmd.register("General", project)
+
+response.created_at
+response.body
+response.html_url

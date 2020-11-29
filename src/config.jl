@@ -2,6 +2,7 @@ module Options
 
 using ..IonBase: dot_ion, ion_toml, init_dot_ion, templates
 using Configurations
+using Comonicon.Tools: cmd_error
 using Pkg.Types: VersionSpec
 
 @option mutable struct Julia
@@ -106,6 +107,28 @@ function find_julia_bin(version_string::String, option::Julia)
     match = find_version(version_string, keys(option.versions))
     match === nothing && return
     return option.versions[match]
+end
+
+function active_julia_bin(ion::Ion=read())::String
+    # 1. use user specified julia binary
+    if haskey(ENV, "JULIA_EXECUTABLE_PATH")
+        return ENV["JULIA_EXECUTABLE_PATH"]
+    end
+
+    if !isnothing(ion.julia.active)
+        return ion.julia.active
+    end
+
+    cmd_error(
+        "cannot detect julia binary, " *
+        "please install julia using: ion install julia [--version=stable] " *
+        "or specify via environment variable JULIA_EXECUTABLE_PATH"
+    )
+end
+
+function active_julia_depots(ion::Ion=read())::Vector{String}
+    julia_bin = active_julia_bin(ion)
+    return Base.eval(Meta.parse(readchomp(`$julia_bin -E 'using Pkg; Pkg.Types.depots()'`)))
 end
 
 end # Options
