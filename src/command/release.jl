@@ -319,7 +319,6 @@ function release(version::String, path::String=pwd(), registry="", branch="maste
             end
 
             if e isa ErrorException # hide stacktrace
-                @show "pass"
                 cmd_error(e.msg)
             else
                 rethrow(e)
