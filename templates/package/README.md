@@ -8,7 +8,7 @@
 <p>
 {{{PKG}}} is a &nbsp;
     <a href="https://julialang.org">
-        <img src="https://julialang.org/favicon.ico" width="16em">
+        <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
     &nbsp; package. To install {{{PKG}}},
@@ -28,6 +28,7 @@ For current master
 pkg> add {{{PKG}}}#master
 ```
 
+{{#HAS_COMONICON}}
 ### Command Line Interface
 
 Add `~/.julia/bin` to your `PATH` to enable command line interface. Or run
@@ -52,6 +53,8 @@ autoload -Uz compinit && compinit
 ```
 
 to your `.zshrc` as well.
+{{/HAS_COMONICON}}
+
 
 {{#HAS_CITATION}}
 ## Citing

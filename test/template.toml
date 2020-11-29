@@ -1,0 +1,128 @@
+[project]
+version="0.1.0"
+# relative path is the path relative
+# to this template file
+src="package/src/test_module.jl"
+
+[project.test]
+file="package/test/test_runtests.jl"
+project=false
+
+[readme]
+file = "package/test_README.md"
+destination = "README.md"
+inline_badges = false
+
+[license]
+name = "MIT"
+# path= "<path to license file>"
+destination = "LICENSE"
+
+[git]
+ignore = []
+# name = "<your name>"
+# email = "<your email>"
+# branch = "<default branch name>"
+ssh = false
+jl = true
+manifest = false
+gpgsign = false
+
+[compat_helper]
+file = "package/github/workflows/test_CompatHelper.yml"
+destination = "CompatHelper.yml"
+cron = "0 0 * * *"
+
+[tag_bot]
+file = "package/github/workflows/test_TagBot.yml"
+destination = "TagBot.yml"
+trigger="JuliaTagBot"
+token="GITHUB_TOKEN"
+ssh="DOCUMENTER_KEY"
+ssh_password = "abc"
+changelog = "abc"
+changelog_ignore = []
+gpg = "abc"
+gpg_password = "abc"
+registry="<owner/repo>"
+branches=false
+dispatch=false
+dispatch_delay=false
+
+[appveyor]
+file = "package/appveyor.yml"
+x86=false
+coverage=true
+# possible values: version number, nightly, lts, stable
+extra_versions=["1.0", "1.5", "nightly"]
+
+[cirrus_ci]
+file="package/cirrus.yml"
+image="freebsd-12-0-release-amd64"
+coverage=true
+extra_versions=["1.0", "1.5", "nightly"]
+
+[github_actions]
+file = "package/github/workflows/ci.yml"
+destination = "ci.yml"
+linux=true
+osx=true
+windows=true
+x64=true
+x86=false
+coverage=true
+extra_versions=["1.0", "1.5", "nightly"]
+
+[gitlab_ci]
+file="package/gitlab-ci.yml"
+coverage=true
+extra_versions=["1.0", "1.5"]
+
+[travis_ci]
+file="package/travis.yml"
+linux=true
+osx=true
+windows=true
+x64=true
+x86=false
+arm64=false
+coverage=true
+extra_versions=["1.0", "1.5", "nightly"]
+
+[codecov]
+file="package/.codecov.yml"
+
+[coveralls]
+file="package/.coveralls.yml"
+
+[documenter]
+make_jl="package/docs/make.jl"
+index_md="package/docs/src/index.md"
+assets=[]
+# canonical_url=""
+# makedocs_kwargs={}
+# devbranch="master"
+
+[documenter.logo]
+light="test_light_logo"
+dark="test_dark_logo"
+
+[citation]
+file="package/CITATION.bib"
+readme=false
+
+[badge.bluestyle]
+[badge.colprac]
+
+[comonicon]
+name = "test"
+completion=true
+quiet=true
+compile="min"
+optimize=2
+
+[system_image]
+path="deps/lib"
+incremental=false
+filter_stdlibs=true
+cpu_target="x86-64"

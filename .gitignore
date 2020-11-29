@@ -8,8 +8,14 @@
 .vscode
 /bin/
 
+/test/.ion/
 /test/dummy/
 /test/Foo/
-/test/.ion/
+/test/Academic/
+/test/Basic/
+/test/Comonicon/
+/test/ComoniconSysImg/
+/test/Package/
 
 Manifest.toml
+Comonicon.toml

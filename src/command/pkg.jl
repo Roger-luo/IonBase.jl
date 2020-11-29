@@ -1,4 +1,9 @@
 # This file only forward to Pkg's command but under --project by default
+module PkgCmd
+
+using ..InstallCmd
+using Comonicon.Tools: prompt
+using ..Options
 
 function detect_user_julia_binary()::String
     # 1. use user specified julia binary
@@ -6,15 +11,21 @@ function detect_user_julia_binary()::String
         return ENV["JULIA_EXECUTABLE_PATH"]
     end
 
-    # 2. try `julia` command
+    # read from ion.toml
+    ion = Options.read()
+    if !isnothing(ion.julia.active)
+        return ion.julia.active
+    end
+
+    # 3. try `julia` command
     try
         user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
         return Meta.parse(user_julia)
     catch
         error(
-            "cannot detect Julia compiler binary, " *
-            "please specify Julia compiler binary " *
-            "via environment variable JULIA_EXECUTABLE_PATH"
+            "cannot detect julia binary, " *
+            "please install julia using: ion install julia [--version=stable] " *
+            "or specify via environment variable JULIA_EXECUTABLE_PATH"
         )
     end
 end
@@ -46,6 +57,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     return
 end
 
+end
 
 """
 add package/project to the closest project.
@@ -63,7 +75,7 @@ add package/project to the closest project.
     isempty(urls) && error("expect a package name or url")
     packages = join(urls, " ")
 
-    withproject(
+    PkgCmd.withproject(
         "pkg\"add $packages\"",
         glob,
         "install a package",
@@ -107,7 +119,7 @@ Update a package. If no posistional argument is given, update all packages in cu
         cmd = "pkg\"up $pkg\""
     end
 
-    withproject(cmd, glob, "update dependencies")
+    PkgCmd.withproject(cmd, glob, "update dependencies")
 end
 
 """
@@ -129,7 +141,7 @@ build package/project/environment
         cmd = "pkg\"build $pkg\""
     end
 
-    withproject(cmd, glob, "build", false)
+    PkgCmd.withproject(cmd, glob, "build", false)
 end
 
 """
@@ -150,7 +162,7 @@ test package/project
         cmd = "Pkg.test(\"$pkg\")"
     end
 
-    withproject(cmd, glob, "test", false)
+    PkgCmd.withproject(cmd, glob, "test", false)
 end
 
 
@@ -173,7 +185,7 @@ show current environment status
         cmd = "Pkg.status(\"$pkg\"; diff=$diff)"
     end
 
-    withproject(cmd, glob, "show status")
+    PkgCmd.withproject(cmd, glob, "show status")
 end
 
 """
@@ -185,7 +197,7 @@ packages that are tracking a path.
 - `-g, --glob`: enable to resolve in global shared environment
 """
 @cast function resolve(; glob::Bool=false)
-    withproject("Pkg.resolve()", glob, "resolve dependencies")
+    PkgCmd.withproject("Pkg.resolve()", glob, "resolve dependencies")
 end
 
 """
@@ -201,7 +213,7 @@ remove it from the manifest including all recursive dependencies of pkg.
 - `-g, --glob`: enable to remove package in global shared environment
 """
 @cast function rm(pkg, pkgs...; glob::Bool=false)
-    withproject("pkg\"rm $(join([pkg, pkgs...], " "))\"", glob, "rm package")
+    PkgCmd.withproject("pkg\"rm $(join([pkg, pkgs...], " "))\"", glob, "rm package")
 end
 
 """
@@ -212,7 +224,7 @@ stored, up to a maximum of 50 states.
 
 - `-g, --glob`: enable to execute in global shared environment
 """
-@cast undo(; glob::Bool=false) = withproject("Pkg.undo()", glob, "undo")
+@cast undo(; glob::Bool=false) = PkgCmd.withproject("Pkg.undo()", glob, "undo")
 
 """
 Redoes the changes from the latest undo.
@@ -221,7 +233,7 @@ Redoes the changes from the latest undo.
 
 - `-g, --glob`: enable to execute in global shared environment
 """
-@cast redo(; glob::Bool=false) = withproject("Pkg.redo()", glob, "redo")
+@cast redo(; glob::Bool=false) = PkgCmd.withproject("Pkg.redo()", glob, "redo")
 
 """
 If a Manifest.toml file exists in the active project, download all the packages
@@ -235,7 +247,7 @@ and instantiate the resulting project.
 - `-v, --verbose`: prints the build output to stdout/stderr instead of redirecting to the build.log file.
 """
 @cast function instantiate(;verbose::Bool=false)
-    withproject("Pkg.instantiate(;verbose=$verbose)", false, "instantiate")
+    PkgCmd.withproject("Pkg.instantiate(;verbose=$verbose)", false, "instantiate")
 end
 
 """
@@ -248,8 +260,56 @@ go back to tracking registered versions.
 
 """
 @cast function free(pkg; glob::Bool=false)
-    withproject("Pkg.free(\"$pkg\")", glob, "free $pkg")
+    PkgCmd.withproject("Pkg.free(\"$pkg\")", glob, "free $pkg")
 end
+
+"""
+registry tools
+"""
+module Registry
+
+using Comonicon
+using Pkg
+using ..PkgCmd
+
+"""
+add a registry
+
+# Arguments
+
+- `url`: URL to the registry, or use name "General" to add the default general registry.
+"""
+@cast function add(url::String)
+    # NOTE: registry operations are global only
+    Pkg.Registry.add(url)
+end
+
+"""
+rm a registry
+
+# Arguments
+
+- `name`: registry name.
+"""
+@cast function rm(name::String)
+    Pkg.Registry.rm(name)
+end
+
+"""
+update a registry
+
+# Arguments
+
+- `name`: registry name.
+"""
+@cast function update(name::String)
+    Pkg.Registry.update(name)
+end
+
+end
+
+@cast Registry
+
 
 # @cast function register()
 # end

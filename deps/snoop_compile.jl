@@ -10,15 +10,6 @@ end
 
 SnoopCompile.@snoopc ["--project=$(project_path)"] "/tmp/ion_compiles.log" begin
     using IonBase, Comonicon
-
-    cd(tempdir()) do
-        rm("Foo"; recursive=true, force=true)
-        IonBase.create("Foo"; user="xyz")
-        rm("Foo"; recursive=true, force=true)
-        IonBase.create("Foo"; user="xyz", template="comonicon")
-        rm("Foo"; recursive=true, force=true)
-    end
-
     include(Comonicon.PATH.project(IonBase, "test", "runtests.jl"))
     IonBase.search("Yao")
     IonBase.Doc.build(Comonicon.PATH.project(IonBase))

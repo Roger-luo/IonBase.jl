@@ -1,19 +1,16 @@
-"""
-search a package.
+module SearchCmd
 
-# Options
+using Pkg
+using TOML
+using GitHub
+using StringDistances
+using Comonicon.Tools: prompt
+using ..IonBase: read_github_auth
 
-- `--registry <name>`: the name of registry you want to search, by default will search all registry in default DEPOT_PATH
-- `--token <github_token>`: specify GitHub authenticate token, this is necessary when you want to search frequently.
-
-# Flags
-
-- `--omit`: use this flag to print only the package names.
-"""
-@cast function search(package::String; omit::Bool=false, registry::String="", token::String="")
+function search(package::String, omit::Bool=false, registry::String="", token::String="")
     results = search_fuzzy_package(package, registry)
 
-    if (length(results) < 15) || Tools.prompt("display all $(length(results)) packages?")
+    if (length(results) < 15) || prompt("display all $(length(results)) packages?")
 
         max_name_length = maximum(results) do (uuid, reg, pkginfo, score)
             length(pkginfo["name"])
@@ -24,7 +21,7 @@ search a package.
             if !isempty(token)
                 auth = GitHub.authenticate(token)
             else
-                auth = GitHub.authenticate(read_auth())
+                auth = GitHub.authenticate(read_github_auth())
             end
         end
 
@@ -152,4 +149,23 @@ function print_stars(io, nstars::Int)
     end
 
     print(io, " stars")
+end
+
+end
+
+"""
+search a package.
+
+# Options
+
+- `--registry <name>`: the name of registry you want to search, by default will search all registry in default DEPOT_PATH
+- `--token <github_token>`: specify GitHub authenticate token, this is necessary when you want to search frequently.
+
+# Flags
+
+- `--omit`: use this flag to print only the package names.
+"""
+@cast function search(package::String; omit::Bool=false, registry::String="", token::String="")
+    SearchCmd.search(package, omit, registry, token)
+    return
 end
