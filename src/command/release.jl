@@ -336,6 +336,7 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
             count = 1
             while !printloop_should_exit
                 wait(t)
+                (auth.set || summon.set || interrupted_or_done.set) && return
                 lock(print_lock) do
                     print(ansi_disablecursor)
                     print("\e[1G  ", CYAN_FG(anim_chars[mod1(count, 4)]))
@@ -390,7 +391,6 @@ function register(::PRN"General", project::Project)
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
     notify(summon_done)
     notify(interrupted_or_done)
-    println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
     println("  ", CYAN_FG(string(comment.html_url)))
     return comment
 end
