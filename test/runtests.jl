@@ -24,5 +24,3 @@ end
 @testset "command/pkg" begin
     include("command/pkg.jl")
 end
-
-rm(test_ion_dir; force=true, recursive=true)
