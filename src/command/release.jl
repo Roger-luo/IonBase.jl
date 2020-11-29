@@ -336,6 +336,7 @@ end
 
 function register(::PRN"General", project::Project)
     github_token = read_github_auth()
+    println("\e[1G    authenticating...")
     auth = GitHub.authenticate(github_token)
     HEAD = read_head(project.git)
     comment_json = Dict{String, Any}(
