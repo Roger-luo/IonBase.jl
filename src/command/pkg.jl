@@ -46,11 +46,17 @@ function withproject(command, glob, action_msg, compile_min=true)
     end
     push!(options, "-g1", "--color=yes", "--startup-file=no", "-e", script)
 
+
+    # PackageCompiler will set depot path to binary folder
+    # we will want to use global default, unless user specified.
+    depot_path = get(ENV, "ION_DEPOT_PATH", nothing)
+
     if glob
-        GLOB_ENV = filter(x->x.first!="JULIA_PROJECT", ENV)
-        run(setenv(Cmd([exename, options...]), GLOB_ENV))
+        withenv("JULIA_PROJECT"=>nothing) do
+            run(Cmd([exename, options...]))
+        end
     else
-        withenv("JULIA_PROJECT"=>"@.") do
+        withenv("JULIA_PROJECT"=>"@.", "JULIA_DEPOT_PATH"=>depot_path) do
             run(Cmd([exename, options...]))
         end
     end
