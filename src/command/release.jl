@@ -344,6 +344,9 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
                         print("authenticating...")
                     elseif !summon.set
                         print("summoning JuliaRegistrator...")
+                    else
+                        println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
+                        printloop_should_exit = true
                     end
                 end
                 printloop_should_exit = interrupted_or_done.set
