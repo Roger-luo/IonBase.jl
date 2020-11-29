@@ -335,7 +335,6 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
         try
             count = 1
             while !printloop_should_exit
-                # (auth.set || summon.set || interrupted_or_done.set) && return
                 lock(print_lock) do
                     print(ansi_disablecursor)
                     print("\e[1G  ", CYAN_FG(anim_chars[mod1(count, 4)]))
