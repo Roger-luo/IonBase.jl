@@ -1,3 +1,17 @@
+module ReleaseCmd
+
+using LocalRegistry
+using RegistryTools
+using OrderedCollections
+using UUIDs
+using GitHub
+using TOML
+using Pkg
+
+using Comonicon.Tools: prompt
+using RegistryTools: gitcmd
+using ..IonBase: read_github_auth
+
 """
     PRN{name}
 
@@ -94,54 +108,6 @@ function checkout(f, p::Project)
     end
 end
 
-"""
-release a package.
-
-# Arguments
-
-- `version`: version number you want to release. Can be a specific version, "current" or either of $(VERSION_TOKENS)
-- `path`: path to the project you want to release.
-
-# Options
-
-- `-r,--registry <registry name>`: registry you want to register the package.
-    If the package has not been registered, ion will try to register
-    the package in the General registry. Or the user needs to specify
-    the registry to register using this option.
-
-- `-b, --branch <branch name>`: branch you want to register.
-
-# Flags
-
-- `-q,--quiet`: do not promote anything.
-"""
-@cast function release(version::String, path::String=pwd(); registry="", branch="master", quiet::Bool=false)
-    project = Project(path; branch=branch)
-    # new version needs to be pushed
-    # so the JuliaRegistrator can find
-    # it later
-    checkout(project) do
-        if LocalRegistry.is_dirty(project.path, Dict())
-            error("package repository is dirty, please commit or stash changes.")
-        end
-
-        if version != "current"
-            update_version!(project, version)
-            commit_toml(project; push=true)
-        end
-
-        try
-            register(registry, project)
-        catch e
-            if version != "current"
-                reset_last_commit(project; push=true)
-            end
-            rethrow(e)
-        end
-    end
-    return
-end
-
 function register(registry::String, project::Project)
     if isempty(registry) # registered package
         path = LocalRegistry.find_registry_path(nothing, project.pkg)
@@ -149,24 +115,6 @@ function register(registry::String, project::Project)
     else
         return register(PRN(registry), project)
     end
-end
-
-function register(::PRN"General", project::Project)
-    github_token = read_auth()
-    auth = GitHub.authenticate(github_token)
-    HEAD = read_head(project.git)
-    comment_json = Dict{String, Any}(
-        "body" => registrator_msg(project),
-    )
-
-    repo = github_repo(project.git)
-    if repo === nothing
-        error("not a GitHub repository")
-    end
-
-    comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
-    println(comment)
-    return
 end
 
 function register(registry::PRN, project::Project)
@@ -181,19 +129,6 @@ function registrator_msg(project)
     else
         return msg * " branch=$(project.branch)"
     end
-end
-
-function read_auth()
-    for key in ENV_TOKEN_NAMES
-        if haskey(ENV, key)
-            return ENV[key]
-        end
-    end
-
-    buf = Base.getpass("GitHub Access Token (https://github.com/settings/tokens)")
-    auth = read(buf, String)
-    Base.shred!(buf)
-    return auth
 end
 
 function read_head(git, branch="master")
@@ -276,7 +211,7 @@ end
 function write_version(project::Project, version::VersionNumber)
     project.pkg.version = version
     open(project.toml, "w+") do f
-        TOML.print(f, to_dict(project)) do x
+        TOML.print(f, to_dict(project); sorted=true, by=key -> (Pkg.Types.project_key_order(key), key)) do x
             if x isa UUID || x isa VersionNumber
                 x = string(x)
             end
@@ -317,4 +252,73 @@ function push_maybe!(t::Vector, project::Pkg.Types.Project, name::Symbol)
         end
     end
     return t
+end
+
+function release(version::String, path::String=pwd(), registry="", branch="master")
+    project = Project(path; branch=branch)
+    # new version needs to be pushed
+    # so the JuliaRegistrator can find
+    # it later
+    checkout(project) do
+        if LocalRegistry.is_dirty(project.path, Dict())
+            error("package repository is dirty, please commit or stash changes.")
+        end
+
+        if version != "current"
+            update_version!(project, version)
+            commit_toml(project; push=true)
+        end
+
+        try
+            register(registry, project)
+        catch e
+            if version != "current"
+                reset_last_commit(project; push=true)
+            end
+            rethrow(e)
+        end
+    end
+    return
+end
+
+function register(::PRN"General", project::Project)
+    github_token = read_github_auth()
+    auth = GitHub.authenticate(github_token)
+    HEAD = read_head(project.git)
+    comment_json = Dict{String, Any}(
+        "body" => registrator_msg(project),
+    )
+
+    repo = github_repo(project.git)
+    if repo === nothing
+        error("not a GitHub repository")
+    end
+
+    comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
+    println(comment)
+    return
+end
+
+end
+
+"""
+release a package.
+
+# Arguments
+
+- `version`: version number you want to release. Can be a specific version, "current" or either of $(ReleaseCmd.VERSION_TOKENS)
+- `path`: path to the project you want to release.
+
+# Options
+
+- `-r,--registry <registry name>`: registry you want to register the package.
+    If the package has not been registered, ion will try to register
+    the package in the General registry. Or the user needs to specify
+    the registry to register using this option.
+
+- `-b, --branch <branch name>`: branch you want to register.
+"""
+@cast function release(version::String, path::String=pwd(); registry="", branch="master")
+    ReleaseCmd.release(version, path, registry, branch)
+    return
 end
