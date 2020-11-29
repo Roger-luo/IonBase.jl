@@ -18,17 +18,19 @@ function detect_user_julia_binary()::String
         return ion.julia.active
     end
 
-    # 3. try `julia` command
-    try
-        user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
-        return Meta.parse(user_julia)
-    catch
-        error(
-            "cannot detect julia binary, " *
-            "please install julia using: ion install julia [--version=stable] " *
-            "or specify via environment variable JULIA_EXECUTABLE_PATH"
-        )
-    end
+    print("cannot detect julia binary - exit")
+    exit(1)
+    # # 3. try `julia` command
+    # try
+    #     user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
+    #     return Meta.parse(user_julia)
+    # catch
+    #     error(
+    #         "cannot detect julia binary, " *
+    #         "please install julia using: ion install julia [--version=stable] " *
+    #         "or specify via environment variable JULIA_EXECUTABLE_PATH"
+    #     )
+    # end
 end
 
 function withproject(command, glob, action_msg, compile_min=true)
@@ -36,6 +38,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     if !glob
         msg = "cannot $action_msg in global environment, use -g, --glob to $action_msg to global environment"
         script *= "(dirname(dirname(Pkg.project().path)) == joinpath(DEPOT_PATH[1], \"environments\")) && error(\"$msg\");"
+        # script *= "println(ENV);"
         # TODO: use Pkg API directly later
         script *= "if isdefined(Pkg.REPLMode, :PRINTED_REPL_WARNING); Pkg.REPLMode.PRINTED_REPL_WARNING[] = true; end;" # supress REPL warning
     end
@@ -52,14 +55,12 @@ function withproject(command, glob, action_msg, compile_min=true)
 
     # PackageCompiler will set depot path to binary folder
     # we will want to use global default, unless user specified.
-    depot_path = get(ENV, "ION_DEPOT_PATH", nothing)
-
     if glob
-        withenv("JULIA_PROJECT"=>nothing, "JULIA_DEPOT_PATH"=>depot_path) do
+        withenv("JULIA_PROJECT"=>nothing, "JULIA_LOAD_PATH"=>nothing, "JULIA_DEPOT_PATH"=>nothing) do
             run(Cmd([exename, options...]))
         end
     else
-        withenv("JULIA_PROJECT"=>"@.", "JULIA_DEPOT_PATH"=>depot_path) do
+        withenv("JULIA_PROJECT"=>"@.", "JULIA_LOAD_PATH"=>nothing, "JULIA_DEPOT_PATH"=>nothing) do
             run(Cmd([exename, options...]))
         end
     end

@@ -12,13 +12,15 @@ Comonicon.set_brief_length!(120)
 # GITHUB_AUTH is suggested by GitHub.jl
 const ENV_GITHUB_TOKEN_NAMES = ["GITHUB_TOKEN", "GITHUB_AUTH"]
 
+# TODO: we might want to change PackageCompiler to set our own
+# depot path
 function ion_dir()
     if haskey(ENV, "DOT_ION_PATH")
         return ENV["DOT_ION_PATH"]
     elseif Sys.isapple() || Sys.islinux()
-        return joinpath(homedir(), ".ion")
+        return joinpath(homedir(), ".julia")
     elseif Sys.iswindows()
-        return expanduser(raw"~\AppData\Local\Ion")
+        return expanduser(raw"~\AppData\Local\.julia")
     end
 end
 
@@ -74,6 +76,7 @@ include("command/plugin.jl")
 include("precompile.jl")
 _precompile_()
 
-# @main
+"The Ion manager."
+@main
 
 end
