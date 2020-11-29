@@ -214,7 +214,7 @@ function update_version!(project::Project, version)
             end
         end
 
-        println(" "^10, "current version: ", LIGHT_GREEN_BG(string(project.pkg.version)))
+        println(" "^10, "current version: ", LIGHT_GREEN_FG(string(project.pkg.version)))
         println(" "^7, "version to release: ", LIGHT_MAGENTA_FG(string(version_number)))
         if !prompt("do you want to update Project.toml?")
             exit(0)
