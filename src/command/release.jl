@@ -347,8 +347,12 @@ function register(::PRN"General", project::Project)
         cmd_error("not a GitHub repository")
     end
 
+    # TODO: add an waiting animation here
+    # anim_chars = ["◐","◓","◑","◒"]
+    # println(" ", LIGHT_GREEN_FG("✔"))
+    println("\e[1G    summoning JuliaRegistrator...")
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
-    println(" ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
+    println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
     println("  ", CYAN_FG(string(comment.html_url)))
     return comment
 end
