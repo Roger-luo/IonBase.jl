@@ -8,7 +8,7 @@ using GitHub
 using TOML
 using Pkg
 
-using Comonicon.Tools: prompt
+using Comonicon.Tools: prompt, cmd_error
 using RegistryTools: gitcmd
 using ..IonBase: read_github_auth
 
@@ -60,7 +60,7 @@ end
 
 function Project(path::String=pwd(); gitconfig=Dict(), branch="master", quiet=false)
     toml = Base.current_project(path)
-    toml === nothing && error("cannot find (Julia)Project.toml in $path")
+    toml === nothing && cmd_error("cannot find (Julia)Project.toml in $path")
     path = dirname(toml)
     pkg = Pkg.Types.read_project(toml)
     git = RegistryTools.gitcmd(path, gitconfig)
@@ -118,7 +118,7 @@ function register(registry::String, project::Project)
 end
 
 function register(registry::PRN, project::Project)
-    error("register workflow is not defined for $registry")
+    cmd_error("register workflow is not defined for $registry")
 end
 
 function registrator_msg(project)
@@ -162,7 +162,7 @@ function update_version!(project::Project, version)
     elseif version in VERSION_TOKENS
         version_number = bump_version(project, version)
     else
-        error("invalid version $version")
+        cmd_error("invalid version $version")
     end
 
     if !project.quiet
@@ -204,7 +204,7 @@ function bump_version(version::VersionNumber, token::String)
     elseif token == VERSION_TOKENS.patch
         return VersionNumber(version.major, version.minor, version.patch+1)
     else
-        error("invalid token $token")
+        cmd_error("invalid token $token")
     end
 end
 
@@ -261,7 +261,7 @@ function release(version::String, path::String=pwd(), registry="", branch="maste
     # it later
     checkout(project) do
         if LocalRegistry.is_dirty(project.path, Dict())
-            error("package repository is dirty, please commit or stash changes.")
+            cmd_error("package repository is dirty, please commit or stash changes.")
         end
 
         if version != "current"
@@ -291,7 +291,7 @@ function register(::PRN"General", project::Project)
 
     repo = github_repo(project.git)
     if repo === nothing
-        error("not a GitHub repository")
+        cmd_error("not a GitHub repository")
     end
 
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)

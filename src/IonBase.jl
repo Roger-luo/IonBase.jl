@@ -76,7 +76,7 @@ include("command/plugin.jl")
 include("precompile.jl")
 _precompile_()
 
-"The Ion manager."
-@main
+# "The Ion manager."
+# @main
 
 end

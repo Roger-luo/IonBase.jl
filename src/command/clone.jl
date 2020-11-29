@@ -4,7 +4,7 @@ using TOML
 using GitHub
 using ..IonBase: read_github_auth
 using ..SearchCmd: search_exact_package, fetch_repo_from_url
-using Comonicon.Tools: prompt
+using Comonicon.Tools: prompt, cmd_error
 
 function clone_url(url::String)
     if endswith(url, "jl.git")
@@ -16,7 +16,7 @@ end
 
 function clone_package(package::String)
     info = search_exact_package(package)
-    isnothing(info) && error("cannot find $package in registries")
+    isnothing(info) && cmd_error("cannot find $package in registries")
     uuid, reg, pkginfo = info
     pkg_toml = TOML.parsefile(joinpath(reg.path, pkginfo["path"], "Package.toml"))
     _clone(pkg_toml["repo"], pkg_toml["name"])

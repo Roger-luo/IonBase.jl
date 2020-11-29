@@ -4,7 +4,7 @@ using JSON
 using ProgressMeter
 using Crayons.Box
 using Pkg.BinaryPlatforms
-using Comonicon.Tools: prompt
+using Comonicon.Tools: prompt, cmd_error
 using SHA: sha256
 using Downloads: download
 using ..IonBase: dot_ion
@@ -17,7 +17,7 @@ function install(target::String, version::String, activate::Bool=true, yes::Bool
     if target == "julia"
         install_julia(version, activate, yes, cache)
     else
-        error("unkown target: $target")
+        cmd_error("unkown target: $target")
     end
 end
 
@@ -39,7 +39,7 @@ function install_julia(version_string::String="stable", activate::Bool=true, yes
     elseif Sys.iswindows()
         install_julia_win(version, file)
     else
-        error("unsupported system")
+        cmd_error("unsupported system")
     end
 
     # successful installed update meta
@@ -98,7 +98,7 @@ function _triplet()
     elseif Sys.iswindows()
         BinaryPlatforms.triplet(Windows(Sys.ARCH))
     else
-        error("unsupported system")
+        cmd_error("unsupported system")
     end
 end
 
@@ -126,7 +126,7 @@ end
 
 function query_julia_downloads(version_string::String, version_info = download_julia_version_json())
     version = Options.find_version(version_string, keys(version_info))
-    version === nothing && error("cannot find version: $version_string")
+    version === nothing && cmd_error("cannot find version: $version_string")
     return query_julia_downloads(version::VersionNumber, version_info)
 end
 
@@ -136,7 +136,7 @@ function query_julia_downloads(version::VersionNumber, version_info = download_j
             return version, file["sha256"], file["url"]
         end
     end
-    error("cannot find julia binary for this platform")
+    cmd_error("cannot find julia binary for this platform")
 end
 
 function find_julia_installer_info(version_string::String)
@@ -213,7 +213,7 @@ function download_julia(version::String="stable", cache::Bool=false)
     if validate_julia_download(sha, file)
         @info "checksum: $(CYAN_FG("true"))"
     else
-        error("download is not complete, please try again")
+        cmd_error("download is not complete, please try again")
     end
     return version, file
 end
@@ -239,7 +239,7 @@ function withdmg(f, file::String, mountpoint::String = splitext(basename(file))[
             break
         end
     end
-    code == 0 || error("unable to mount $file")
+    code == 0 || cmd_error("unable to mount $file")
 
     ret = f(mountpoint)
     @info "umounting $mountpoint"
@@ -286,7 +286,7 @@ function install_julia_mac(version, file::String, install_dir=default_install_di
     return withdmg(file) do mountpoint
         dirs = readdir(mountpoint)
         idx = findfirst(startswith("Julia"), dirs)
-        idx !== nothing || error("julia installer does not contain julia binary")
+        idx !== nothing || cmd_error("julia installer does not contain julia binary")
         julia_dir = dirs[idx]
         install_path = joinpath(install_dir, julia_dir)
         julia_bin = "$install_path/Contents/Resources/julia/bin/julia"
@@ -322,7 +322,7 @@ function create_symlink(src::String, name::String, bin=dot_ion("bin"))
 end
 
 function install_julia_win(version, file::String)
-    error("not implemented")
+    cmd_error("not implemented")
 end
 
 end # InstallCmd

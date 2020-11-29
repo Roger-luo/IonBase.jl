@@ -3,7 +3,7 @@ module CreateCmd
 using Crayons.Box
 using PkgTemplates
 using TOML
-using Comonicon.Tools: prompt
+using Comonicon.Tools: prompt, cmd_error
 
 using ..IonBase
 using ..Options
@@ -108,7 +108,7 @@ end
 
 function push_plugin!(plugins::Vector{Any}, plugin_name::String, params::Dict{String, Any}, postfix::String="")
     name = Symbol(snake2camel(plugin_name) * postfix)
-    isdefined(CreateCmd, name) || error("template plugin $name is not defined")
+    isdefined(CreateCmd, name) || cmd_error("template plugin $name is not defined")
     kwargs = Expr(:parameters)
     for (k, v) in params
         push!(kwargs.args, Expr(:kw, Symbol(k), v))

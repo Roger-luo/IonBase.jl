@@ -3,7 +3,7 @@ module PkgCmd
 
 using Pkg
 using ..InstallCmd
-using Comonicon.Tools: prompt
+using Comonicon.Tools: prompt, cmd_error
 using ..Options
 
 function detect_user_julia_binary()::String
@@ -18,26 +18,24 @@ function detect_user_julia_binary()::String
         return ion.julia.active
     end
 
-    print("cannot detect julia binary - exit")
-    exit(1)
-    # # 3. try `julia` command
-    # try
-    #     user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
-    #     return Meta.parse(user_julia)
-    # catch
-    #     error(
-    #         "cannot detect julia binary, " *
-    #         "please install julia using: ion install julia [--version=stable] " *
-    #         "or specify via environment variable JULIA_EXECUTABLE_PATH"
-    #     )
-    # end
+    # 3. try `julia` command
+    try
+        user_julia = readchomp(Cmd(`julia -E "joinpath(Sys.BINDIR, Base.julia_exename())"`))
+        return Meta.parse(user_julia)
+    catch
+        cmd_error(
+            "cannot detect julia binary, " *
+            "please install julia using: ion install julia [--version=stable] " *
+            "or specify via environment variable JULIA_EXECUTABLE_PATH"
+        )
+    end
 end
 
 function withproject(command, glob, action_msg, compile_min=true)
     script = "using Pkg;"
     if !glob
         msg = "cannot $action_msg in global environment, use -g, --glob to $action_msg to global environment"
-        script *= "(dirname(dirname(Pkg.project().path)) == joinpath(DEPOT_PATH[1], \"environments\")) && error(\"$msg\");"
+        script *= "(dirname(dirname(Pkg.project().path)) == joinpath(DEPOT_PATH[1], \"environments\")) && (print(\"$msg\"); exit(1););"
         # script *= "println(ENV);"
         # TODO: use Pkg API directly later
         script *= "if isdefined(Pkg.REPLMode, :PRINTED_REPL_WARNING); Pkg.REPLMode.PRINTED_REPL_WARNING[] = true; end;" # supress REPL warning
@@ -57,11 +55,11 @@ function withproject(command, glob, action_msg, compile_min=true)
     # we will want to use global default, unless user specified.
     if glob
         withenv("JULIA_PROJECT"=>nothing, "JULIA_LOAD_PATH"=>nothing, "JULIA_DEPOT_PATH"=>nothing) do
-            run(Cmd([exename, options...]))
+            run(ignorestatus(Cmd([exename, options...])))
         end
     else
         withenv("JULIA_PROJECT"=>"@.", "JULIA_LOAD_PATH"=>nothing, "JULIA_DEPOT_PATH"=>nothing) do
-            run(Cmd([exename, options...]))
+            run(ignorestatus(Cmd([exename, options...])))
         end
     end
     return
@@ -82,7 +80,7 @@ add package/project to the closest project.
 
 """
 @cast function add(urls...; glob::Bool=false)
-    isempty(urls) && error("expect a package name or url")
+    isempty(urls) && cmd_error("expect a package name or url")
     packages = join(urls, " ")
 
     PkgCmd.withproject(
