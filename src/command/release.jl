@@ -222,6 +222,7 @@ function update_version!(project::Project, version)
     end
 
     write_version(project, version_number)
+    println(" ", LIGHT_GREEN_FG("✔"), "  Project.toml has been updated to ", LIGHT_CYAN_FG(string(version_number)))
     return project
 end
 
