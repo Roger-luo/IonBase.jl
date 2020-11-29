@@ -36,6 +36,8 @@ function withproject(command, glob, action_msg, compile_min=true)
     if !glob
         msg = "cannot $action_msg in global environment, use -g, --glob to $action_msg to global environment"
         script *= "(dirname(dirname(Pkg.project().path)) == joinpath(DEPOT_PATH[1], \"environments\")) && error(\"$msg\");"
+        # TODO: use Pkg API directly later
+        script *= "if isdefined(Pkg.REPLMode, :PRINTED_REPL_WARNING); Pkg.REPLMode.PRINTED_REPL_WARNING[] = true; end;" # supress REPL warning
     end
 
     script *= command
