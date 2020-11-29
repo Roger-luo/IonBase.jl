@@ -336,7 +336,7 @@ end
 
 function register(::PRN"General", project::Project)
     github_token = read_github_auth()
-    println("\e[1G    authenticating...")
+    print("\e[1G    authenticating...")
     auth = GitHub.authenticate(github_token)
     HEAD = read_head(project.git)
     comment_json = Dict{String, Any}(
@@ -351,7 +351,7 @@ function register(::PRN"General", project::Project)
     # TODO: add an waiting animation here
     # anim_chars = ["◐","◓","◑","◒"]
     # println(" ", LIGHT_GREEN_FG("✔"))
-    println("\e[1G    summoning JuliaRegistrator...")
+    print("\e[1G    summoning JuliaRegistrator...")
     comment = GitHub.create_comment(repo, HEAD, :commit; params=comment_json, auth=auth)
     println("\e[1G ", LIGHT_GREEN_FG("✔"), "  JuliaRegistrator has been summoned, check it in the following URL:")
     println("  ", CYAN_FG(string(comment.html_url)))
