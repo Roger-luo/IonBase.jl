@@ -326,7 +326,7 @@ end
 
 function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_done::Base.Event)
     anim_chars = ["◐","◓","◑","◒"]
-    t = Timer(0; interval=1/10)
+    t = Timer(0; interval=1/20)
     print_lock = ReentrantLock()
     printloop_should_exit = interrupted_or_done.set
     @async begin
