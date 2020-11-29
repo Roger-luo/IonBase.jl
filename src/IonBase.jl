@@ -18,9 +18,9 @@ function ion_dir()
     if haskey(ENV, "DOT_ION_PATH")
         return ENV["DOT_ION_PATH"]
     elseif Sys.isapple() || Sys.islinux()
-        return joinpath(homedir(), ".julia")
+        return joinpath(homedir(), ".ion")
     elseif Sys.iswindows()
-        return expanduser(raw"~\AppData\Local\.julia")
+        return expanduser(raw"~\AppData\Local\Ion")
     end
 end
 
