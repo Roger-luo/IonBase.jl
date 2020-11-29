@@ -41,10 +41,3 @@ include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
 end
 
 end
-
-project = ReleaseCmd.Project(".")
-response = ReleaseCmd.register("General", project)
-
-response.created_at
-response.body
-response.html_url
