@@ -60,21 +60,9 @@ CreateCmd.copy_templates(joinpath(pkgdir(IonBase), "test", ".ion", "templates"))
 
 with_test_ion() do
     IonBase.create(joinpath(test_dir, "Basic"); user="abc", force=true)
-end
-
-with_test_ion() do
     IonBase.create(joinpath(test_dir, "Academic"); user= "abc", template = "academic", force=true)
-end
-
-with_test_ion() do
     IonBase.create(joinpath(test_dir, "Package"); user= "abc", template = "package", force=true)
-end
-
-with_test_ion() do
     IonBase.create(joinpath(test_dir, "Comonicon"); user= "abc", template = "comonicon", force=true)
-end
-
-with_test_ion() do
     IonBase.create(joinpath(test_dir, "ComoniconSysImg"); user= "abc", template = "comonicon-sysimg", force=true)
 end
 

@@ -34,7 +34,7 @@ include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
     @test project.pkg.version == v"1.0.0"
     @test Pkg.Types.read_project(joinpath(basic_project, "Project.toml")).version == v"1.0.0"
 
-    project = ReleaseCmd.Project("..", quiet=true)
+    project = ReleaseCmd.Project(pkgdir(IonBase), quiet=true)
     matches = ReleaseCmd.query_project_registry(project)
     @test length(matches) == 1
     @test first(matches).uuid == UUID("23338594-aafe-5451-b93e-139f81909106")
