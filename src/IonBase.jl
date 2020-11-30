@@ -84,12 +84,6 @@ include("command/plugin.jl")
 include("precompile.jl")
 _precompile_()
 
-function __init__()
-    if ccall(:jl_generating_output, Cint, ()) == 0
-        include(joinpath(@__DIR__, "overload.jl"))
-    end
-end
-
 # "The Ion manager."
 # @main
 

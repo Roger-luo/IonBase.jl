@@ -5,7 +5,7 @@ using IonBase
 include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
 
 with_test_ion() do
-    cd(joinpath(test_dir, "Foo")) do
+    cd(joinpath(test_dir, "Basic")) do
         IonBase.add("OhMyREPL")
         IonBase.rm("OhMyREPL")
         IonBase.instantiate()

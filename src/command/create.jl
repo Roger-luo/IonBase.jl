@@ -289,6 +289,7 @@ function save_template(t::Template, ion::Options.Ion=Options.read(), name::Strin
 end
 
 function create(path::String, user::String="", template::String="", force::Bool=false, interactive::Bool=false)
+    PkgTemplates.DEFAULT_TEMPLATE_DIR[] = templates("package")
     t = Options.withion() do ion
         t = create_template(path, user, template, interactive, ion)
 
