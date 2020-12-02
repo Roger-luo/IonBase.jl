@@ -11,7 +11,7 @@ using Pkg.Types
 using Pkg.Types: RegistrySpec
 using Comonicon.Tools: prompt, cmd_error
 using ..Options
-using ..SearchCmd: find_max_version
+using ..SearchCmd: find_max_version, collect_registries
 using ..IonBase: read_github_auth, gitcmd
 
 """
@@ -113,15 +113,8 @@ function checkout(f, p::Project)
     end
 end
 
-function collect_registries(project::Project)
-    @info "collecting registries"
-    depots = Options.active_julia_depots(project.ion)
-    isempty(depots) && return RegistrySpec[]
-    return RegistrySpec[r for d in depots for r in Pkg.Types.collect_registries(d)]
-end
-
 function query_project_registry(project::Project)
-    registries = collect_registries(project)
+    registries = collect_registries(project.ion)
 
     @info "filtering registries"
     matches = filter(registries) do rs::RegistrySpec

@@ -2,6 +2,7 @@ module CloneCmd
 
 using TOML
 using GitHub
+using ..Options
 using ..IonBase: read_github_auth
 using ..SearchCmd: search_exact_package, fetch_repo_from_url
 using Comonicon.Tools: prompt, cmd_error
@@ -14,8 +15,8 @@ function clone_url(url::String)
     end
 end
 
-function clone_package(package::String)
-    info = search_exact_package(package)
+function clone_package(package::String, ion::Options.Ion=Options.read())
+    info = search_exact_package(package, "", ion)
     isnothing(info) && cmd_error("cannot find $package in registries")
     uuid, reg, pkginfo = info
     pkg_toml = TOML.parsefile(joinpath(reg.path, pkginfo["path"], "Package.toml"))

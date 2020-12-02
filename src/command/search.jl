@@ -5,10 +5,16 @@ using TOML
 using GitHub
 using StringDistances
 using Comonicon.Tools: prompt
+using ..Options
 using ..IonBase: read_github_auth
 
-function search(package::String, omit::Bool=false, registry::String="", token::String="")
-    results = search_fuzzy_package(package, registry)
+function search(package::String, omit::Bool=false, registry::String="", token::String="", ion::Options.Ion = Options.read())
+    results = search_fuzzy_package(package, registry, ion)
+    
+    if isempty(results)
+        println("no package match $package")
+        return
+    end
 
     if (length(results) < 15) || prompt("display all $(length(results)) packages?")
 
@@ -57,9 +63,16 @@ function search(package::String, omit::Bool=false, registry::String="", token::S
     return
 end
 
-function search_fuzzy_package(package::String, registry::String="")
+function collect_registries(ion::Options.Ion=Options.read())
+    @info "collecting registries"
+    depots = Options.active_julia_depots(ion)
+    isempty(depots) && return RegistrySpec[]
+    return RegistrySpec[r for d in depots for r in Pkg.Types.collect_registries(d)]
+end
+
+function search_fuzzy_package(package::String, registry::String="", ion::Options.Ion=Options.read())
     results = []
-    for reg in Pkg.Types.collect_registries()
+    for reg in collect_registries(ion)
         if isempty(registry) || registry == reg.name
             data = Pkg.Types.read_registry(joinpath(reg.path, "Registry.toml"))
             for (uuid, pkginfo) in data["packages"]
@@ -75,8 +88,8 @@ function search_fuzzy_package(package::String, registry::String="")
     return results
 end
 
-function search_exact_package(package::String, registry::String="")
-    for reg in Pkg.Types.collect_registries()
+function search_exact_package(package::String, registry::String="", ion::Options.Ion=Options.read())
+    for reg in collect_registries(ion)
         if isempty(registry) || registry == reg.name
             data = Pkg.Types.read_registry(joinpath(reg.path, "Registry.toml"))
             for (uuid, pkginfo) in data["packages"]
@@ -90,8 +103,8 @@ function search_exact_package(package::String, registry::String="")
     return nothing
 end
 
-function find_max_version(package::String, registry::String="")
-    info = search_exact_package(package, registry)
+function find_max_version(package::String, registry::String="", ion::Options.Ion=Options.read())
+    info = search_exact_package(package, registry, ion)
     info === nothing && return
 
     uuid, reg, pkginfo = info
