@@ -32,6 +32,10 @@ function install_julia(version_string::String="stable", activate::Bool=true, yes
     end
 
     version, file = download_julia(version_string, cache)
+
+    # make sure the path is available
+    ispath(toml.julia.install_dir) || mkpath(toml.julia.install_dir)
+
     julia_bin = if Sys.islinux()
         install_julia_linux(version, file, toml)
     elseif Sys.isapple()
