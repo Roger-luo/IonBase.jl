@@ -310,9 +310,11 @@ function release(version::String, path::String=pwd(), registry="", branch="maste
             update_version!(project, version)
             commit_toml(project; push=true)
             committed_changes = true
-        else
+        elseif prompt("do you want to release current version $(LIGHT_CYAN_FG(string(project.pkg.version)))?")
             # make sure we sync with remote
             gitpush(project)
+        else # do nothing
+            return
         end
 
         try
