@@ -7,7 +7,7 @@ using GitHub
 using Crayons.Box
 using TOML
 using Pkg
-
+using Pkg.Types
 using Pkg.Types: RegistrySpec
 using Comonicon.Tools: prompt, cmd_error
 using ..Options
@@ -113,15 +113,17 @@ function checkout(f, p::Project)
     end
 end
 
-function collect_registers(project::Project)
+function collect_registries(project::Project)
+    @info "collecting registries"
     depots = Options.active_julia_depots(project.ion)
     isempty(depots) && return RegistrySpec[]
     return RegistrySpec[r for d in depots for r in Pkg.Types.collect_registries(d)]
 end
 
 function query_project_registry(project::Project)
-    registries = collect_registers(project)
+    registries = collect_registries(project)
 
+    @info "filtering registries"
     matches = filter(registries) do rs::RegistrySpec
         d = Pkg.Types.read_registry(joinpath(rs.path, "Registry.toml"))
         haskey(d["packages"], string(project.pkg.uuid))
@@ -133,6 +135,7 @@ end
 
 function register(registry::String, project::Project)
     if isempty(registry) # registered package
+        @info "querying project registry"
         matches = query_project_registry(project)
         matches === nothing && cmd_error(
             "$(project.pkg.name) is not registered " *
@@ -159,8 +162,8 @@ end
 
 function registrator_msg(project)
     msg = "Released via [Ion CLI](https://github.com/Roger-luo/IonCLI.jl)\n"
-    # msg *= "@JuliaRegistrator register"
-    msg *= "testing"
+    msg *= "@JuliaRegistrator register"
+    # msg *= "testing"
     if project.branch == "master"
         return msg
     else
@@ -365,6 +368,7 @@ function useless_animation(auth::Base.Event, summon::Base.Event, interrupted_or_
 end
 
 function register(::PRN"General", project::Project)
+    @info "register project in General"
     auth_done = Base.Event()
     summon_done = Base.Event()
     interrupted_or_done = Base.Event()

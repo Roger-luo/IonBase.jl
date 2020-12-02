@@ -33,11 +33,11 @@ function install_julia(version_string::String="stable", activate::Bool=true, yes
 
     version, file = download_julia(version_string, cache)
     julia_bin = if Sys.islinux()
-        install_julia_linux(version, file)
+        install_julia_linux(version, file, toml)
     elseif Sys.isapple()
-        install_julia_mac(version, file)
+        install_julia_mac(version, file, toml)
     elseif Sys.iswindows()
-        install_julia_win(version, file)
+        install_julia_win(version, file, toml)
     else
         cmd_error("unsupported system")
     end
@@ -256,17 +256,9 @@ function withtar(f, file::String, mountpoint::String = mktempdir())
     return ret
 end
 
-function default_install_dir()
-    install_dir = dot_ion("packages")
-    if !ispath(install_dir)
-        mkpath(install_dir)
-    end
-    return install_dir
-end
-
-function install_julia_linux(version, file::String, install_dir=default_install_dir())
+function install_julia_linux(version, file::String, ion::Options.Ion = Options.read())
     postfix = version == "nightly" ? version : "$(version.major).$(version.minor)"
-    install_path = joinpath(install_dir, "julia-$postfix")
+    install_path = joinpath(ion.julia.install_dir, "julia-$postfix")
     julia_bin = joinpath(install_path, "bin", "julia")
 
     if ispath(install_path)
@@ -282,13 +274,13 @@ function install_julia_linux(version, file::String, install_dir=default_install_
     return julia_bin
 end
 
-function install_julia_mac(version, file::String, install_dir=default_install_dir())
+function install_julia_mac(version, file::String, ion::Options.Ion = Options.read())
     return withdmg(file) do mountpoint
         dirs = readdir(mountpoint)
         idx = findfirst(startswith("Julia"), dirs)
         idx !== nothing || cmd_error("julia installer does not contain julia binary")
         julia_dir = dirs[idx]
-        install_path = joinpath(install_dir, julia_dir)
+        install_path = joinpath(ion.julia.install_dir, julia_dir)
         julia_bin = "$install_path/Contents/Resources/julia/bin/julia"
 
         if ispath(install_path)
@@ -301,6 +293,10 @@ function install_julia_mac(version, file::String, install_dir=default_install_di
         cp(src, install_path; force=true, follow_symlinks=true)
         return julia_bin
     end
+end
+
+function install_julia_win(version, file::String, ion::Options.Ion = Options.read())
+    cmd_error("not implemented")
 end
 
 # NOTE: we don't use joinpath(homedir(), .local), since we prefer to allow users to
@@ -319,10 +315,6 @@ function create_symlink(src::String, name::String, bin=dot_ion("bin"))
     @info "creating symlink: $(CYAN_FG(link))"
     symlink(src, link)
     return
-end
-
-function install_julia_win(version, file::String)
-    cmd_error("not implemented")
 end
 
 end # InstallCmd

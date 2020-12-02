@@ -5,10 +5,20 @@ using Configurations
 using Comonicon.Tools: cmd_error
 using Pkg.Types: VersionSpec
 
+function default_install_dir()
+    haskey(ENV, "JULIA_INSTALL_PATH") && return ENV["JULIA_INSTALL_PATH"]
+    install_dir = dot_ion("packages")
+    if !ispath(install_dir)
+        mkpath(install_dir)
+    end
+    return install_dir
+end
+
 @option mutable struct Julia
     active::Union{String, Nothing} = nothing
     stable::Union{VersionNumber, Nothing} = nothing
     nightly::Union{String, Nothing} = nothing
+    install_dir::String = default_install_dir()
     # NOTE: we store nightly here too
     versions::Dict{VersionNumber, String} = Dict{VersionNumber, String}()
 end
@@ -128,7 +138,9 @@ end
 
 function active_julia_depots(ion::Ion=read())::Vector{String}
     julia_bin = active_julia_bin(ion)
-    return Base.eval(Meta.parse(readchomp(`$julia_bin -E 'using Pkg; Pkg.Types.depots()'`)))
+    return withenv("JULIA_PROJECT"=>nothing, "JULIA_LOAD_PATH"=>nothing, "JULIA_DEPOT_PATH"=>nothing) do
+        Base.eval(Meta.parse(readchomp(`$julia_bin -E 'using Pkg; Pkg.Types.depots()'`)))
+    end
 end
 
 end # Options
