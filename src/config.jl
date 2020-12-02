@@ -144,3 +144,24 @@ function active_julia_depots(ion::Ion=read())::Vector{String}
 end
 
 end # Options
+
+"""
+config Ion manager.
+
+# Options
+
+- `--path=<install path>`: config julia install path.
+- `--username=<username>`: set your username.
+"""
+@cast function config(;path::String="", username::String="")
+    ion = Options.read()
+    if !isempty(path)
+        ion.julia.install_dir = path
+    end
+
+    if !isempty(username)
+        ion.username = username
+    end
+    Options.dump(ion)
+    return
+end
