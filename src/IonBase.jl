@@ -1,6 +1,7 @@
 module IonBase
 
 using Comonicon
+using MatchCore
 # for precompile
 using Pkg
 using GitHub

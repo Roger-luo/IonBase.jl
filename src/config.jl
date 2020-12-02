@@ -148,19 +148,18 @@ end # Options
 """
 config Ion manager.
 
-# Options
+# Args
 
-- `--path=<install path>`: config julia install path.
-- `--username=<username>`: set your username.
+- `item`: the configuration item you want to set or view.
 """
-@cast function config(;path::String="", username::String="")
+@cast function config(item::String)
     ion = Options.read()
-    if !isempty(path)
-        ion.julia.install_dir = path
-    end
-
-    if !isempty(username)
-        ion.username = username
+    @smatch split(item, "=") begin
+        ["julia.install_dir"] => println(ion.julia.install_dir)
+        ["julia.install_dir", value] => (ion.julia.install_dir = value;)
+        ["username"] => println(ion.username)
+        ["username", value] => (ion.username = value;)
+        _ => cmd_error("invalid configuration item")
     end
     Options.dump(ion)
     return
