@@ -23,6 +23,13 @@ end
 
 end # ActivateCmd
 
+"""
+activate a specific julia version.
+
+# Args
+
+- `version`: a julia version number or `stable`/`nightly`/`latest`.
+"""
 @cast function activate(version::String="stable")
     try
         ActivateCmd.activate(version)
