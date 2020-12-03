@@ -312,7 +312,7 @@ function create_symlink(src::String, name::String, bin=dot_ion("bin"))
     end
 
     link = joinpath(bin, name)
-    if ispath(link) || islink(link)
+    if islink(link) || ispath(link)
         @info "$(CYAN_FG(link)) exists, removing..."
         rm(link; force=true)
     end
