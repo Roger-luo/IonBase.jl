@@ -275,7 +275,7 @@ function install_julia_linux(version, file::String, ion::Options.Ion = Options.r
         cp(src, install_path; force=true, follow_symlinks=true)
     end
 
-    return joinpath(first(readdir(install_path)), "bin", "julia")
+    return joinpath(install_path, first(readdir(install_path)), "bin", "julia")
 end
 
 function install_julia_mac(version, file::String, ion::Options.Ion = Options.read())
