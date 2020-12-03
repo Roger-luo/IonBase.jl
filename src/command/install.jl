@@ -170,7 +170,7 @@ function find_nightly()
         installer = string("mac", arch, ".dmg")
     elseif Sys.islinux()
         sys = "linux"
-        if name == "aarch64"
+        if platform == "aarch64"
             installer = "linuxaarch64.tar.gz"
         else
             installer = string("linux", arch, ".tar.gz")
