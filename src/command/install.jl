@@ -263,7 +263,6 @@ end
 function install_julia_linux(version, file::String, ion::Options.Ion = Options.read())
     postfix = version == "nightly" ? version : "$(version.major).$(version.minor)"
     install_path = joinpath(ion.julia.install_dir, "julia-$postfix")
-    julia_bin = joinpath(install_path, "bin", "julia")
 
     if ispath(install_path)
         @info "removing old path: $install_path"
@@ -275,7 +274,8 @@ function install_julia_linux(version, file::String, ion::Options.Ion = Options.r
         @info "copying new julia files from $src"
         cp(src, install_path; force=true, follow_symlinks=true)
     end
-    return julia_bin
+
+    return joinpath(first(readdir(install_path)), "bin", "julia")
 end
 
 function install_julia_mac(version, file::String, ion::Options.Ion = Options.read())
