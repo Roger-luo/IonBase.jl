@@ -10,7 +10,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     script = "using Pkg;"
     if !glob
         msg = "cannot $action_msg in global environment, use -g, --glob to $action_msg to global environment"
-        script *= "(dirname(dirname(Pkg.project().path)) == joinpath(DEPOT_PATH[1], \"environments\")) && (print(\"$msg\"); exit(1););"
+        script *= "startswith(Base.active_project(), DEPOT_PATH[1]) && (print(\"$msg\"); exit(1););"
         # script *= "println(ENV);"
         # TODO: use Pkg API directly later
         script *= "if isdefined(Pkg.REPLMode, :PRINTED_REPL_WARNING); Pkg.REPLMode.PRINTED_REPL_WARNING[] = true; end;" # supress REPL warning
@@ -63,6 +63,10 @@ add package/project to the closest project.
         glob,
         "install a package",
     )
+end
+
+@cast function precompile()
+    Pkg
 end
 
 """
