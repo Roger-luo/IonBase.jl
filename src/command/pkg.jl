@@ -253,13 +253,13 @@ go back to tracking registered versions.
     PkgCmd.withproject("Pkg.free(\"$pkg\")", glob, "free $pkg")
 end
 
-"""
-Precompile all the dependencies of the project by running import on all of them in a
-new process.
-"""
-@cast function precompile()
-    PkgCmd.withproject("Pkg.precompile(\"$pkg\")", false, "precompile project")
-end
+# """
+# Precompile all the dependencies of the project by running import on all of them in a
+# new process.
+# """
+# @cast function precompile()
+#     PkgCmd.withproject("Pkg.precompile(\"$pkg\")", false, "precompile project")
+# end
 
 """
 registry tools
