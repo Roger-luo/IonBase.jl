@@ -331,10 +331,7 @@ install a given target. Currently only supports "julia",
 # Arguments
 
 - `target`: install given target, currently only supports `julia`.
-
-# Options
-
-- `-v, --version=<version/stable/nightly>`: version info, can be version number or `stable`/`nightly`.
+- `version`: version you want to install, default is `stable`.
 
 # Flags
 
@@ -342,7 +339,7 @@ install a given target. Currently only supports "julia",
 - `--cache`: cache downloads in `.ion/cache`.
 - `--no-activate`: do not activate the `julia` installation.
 """
-@cast function install(target::String; version::String="stable", no_activate::Bool=false, yes::Bool=false, cache::Bool=false)
+@cast function install(target::String, version::String="stable"; no_activate::Bool=false, yes::Bool=false, cache::Bool=false)
     try
         InstallCmd.install(target, version, !no_activate, yes, cache)
     catch e

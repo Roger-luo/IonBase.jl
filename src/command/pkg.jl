@@ -65,10 +65,6 @@ add package/project to the closest project.
     )
 end
 
-@cast function precompile()
-    Pkg
-end
-
 """
 Make a package available for development. If pkg is an existing local path, that path will be recorded in the manifest and used.
 Otherwise, a full git clone of pkg is made. Unlike the `dev/develop` command in Julia REPL pkg mode, `ion` will clone the package
@@ -98,12 +94,17 @@ Update a package. If no posistional argument is given, update all packages in cu
 # Arguments
 
 - `pkg`: package name.
+
+# Options
+
+- `--level=<int>`: control how much packages are allowed to be upgraded, major: `3`, minor: `2`, patch: `1`, fixed: `0`.
 """
-@cast function update(pkg=""; glob::Bool=false)
-    if isempty(pkg)
-        cmd = "pkg\"up\""
+@cast function update(pkgs::String...; level::Int=3, glob::Bool=false)
+    if isempty(pkgs)
+        cmd = "Pkg.update(;level=UpgradeLevel($level))"
     else
-        cmd = "pkg\"up $pkg\""
+        pkg_str = join(map(x->"\"$pkgs\""), ", ")
+        cmd = "Pkg.update([$pkg_str])"
     end
 
     PkgCmd.withproject(cmd, glob, "update dependencies")
@@ -199,8 +200,10 @@ remove it from the manifest including all recursive dependencies of pkg.
 
 - `-g, --glob`: enable to remove package in global shared environment
 """
-@cast function rm(pkg, pkgs...; glob::Bool=false)
-    PkgCmd.withproject("pkg\"rm $(join([pkg, pkgs...], " "))\"", glob, "rm package")
+@cast function rm(pkgs...; glob::Bool=false)
+    isempty(pkgs) || cmd_error("expect package name")
+    pkgs_str = join(map(x->"\"$x\"", pkgs), ", ")
+    PkgCmd.withproject("Pkg.rm([$pkgs_str])", glob, "rm package")
 end
 
 """
@@ -251,6 +254,14 @@ go back to tracking registered versions.
 end
 
 """
+Precompile all the dependencies of the project by running import on all of them in a
+new process.
+"""
+@cast function precompile()
+    PkgCmd.withproject("Pkg.precompile(\"$pkg\")", false, "precompile project")
+end
+
+"""
 registry tools
 """
 module Registry
@@ -289,8 +300,12 @@ update a registry
 
 - `name`: registry name.
 """
-@cast function update(name::String)
-    PkgCmd.withproject("Pkg.Registry.update(\"$name\")", true, "update registry $name")
+@cast function update(name::String="")
+    if isempty(name)
+        PkgCmd.withproject("Pkg.Registry.update()", true, "update registry $name")
+    else
+        PkgCmd.withproject("Pkg.Registry.update(\"$name\")", true, "update registry $name")
+    end
 end
 
 end

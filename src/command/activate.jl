@@ -26,7 +26,7 @@ end # ActivateCmd
 """
 activate a specific julia version.
 
-# Args
+# Arguements
 
 - `version`: a julia version number or `stable`/`nightly`/`latest`.
 """
