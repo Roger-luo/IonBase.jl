@@ -164,7 +164,7 @@ end
 
 function default_authors()
     name = LibGit2.getconfig("user.name", "")
-    isempty(name) && return "contributors"
+    isempty(name) && return ["contributors"]
     email = LibGit2.getconfig("user.email", "")
     authors = isempty(email) ? name : "$name <$email>"
     return ["$authors and contributors"]
