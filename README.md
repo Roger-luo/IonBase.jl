@@ -1,6 +1,7 @@
 # IonBase
 
 [![CI](https://github.com/Roger-luo/IonBase.jl/workflows/CI/badge.svg)](https://github.com/Roger-luo/IonBase.jl/actions)
+[![codecov](https://codecov.io/gh/Roger-luo/IonBase.jl/branch/master/graph/badge.svg?token=D9FIQIQ234)](https://codecov.io/gh/Roger-luo/IonBase.jl)
 
 The Base package for [IonCLI](https://github.com/Roger-luo/IonCLI.jl). This includes all the builtin functionalities
 in IonCLI. It can be extended by developers by overloading some of the interfaces.
