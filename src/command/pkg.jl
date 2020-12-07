@@ -6,7 +6,7 @@ using ..InstallCmd
 using Comonicon.Tools: prompt, cmd_error
 using ..Options
 
-function withproject(command, glob, action_msg, compile_min=true)
+function withproject(command, glob, action_msg, compile_min=true, ion::Options.Ion=Options.read())
     script = "using Pkg;"
     if !glob
         msg = "cannot $action_msg in global environment, use -g, --glob to $action_msg to global environment"
@@ -17,7 +17,7 @@ function withproject(command, glob, action_msg, compile_min=true)
     end
 
     script *= command
-    exename = Options.active_julia_bin()
+    exename = Options.active_julia_bin(ion)
 
     options = []
     if compile_min

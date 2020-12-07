@@ -221,14 +221,6 @@ version = "1.0.13"
 deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
-[[PkgTemplates]]
-deps = ["Configurations", "Dates", "InteractiveUtils", "LibGit2", "Mustache", "OrderedCollections", "Pkg", "REPL", "TOML", "UUIDs"]
-git-tree-sha1 = "e92a860f3bc9b55d9fb83fc0a76c2149eca44368"
-repo-rev = "toml"
-repo-url = "https://github.com/Roger-luo/PkgTemplates.jl.git"
-uuid = "14b8a8f1-9102-5b29-a752-f990bacb7fe1"
-version = "0.7.14"
-
 [[Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
@@ -278,7 +270,9 @@ version = "0.9.1"
 
 [[TOML]]
 deps = ["Dates"]
-git-tree-sha1 = "d0ac7eaad0fb9f6ba023a1d743edca974ae637c4"
+git-tree-sha1 = "0605c82a8c0f299a25b9d8c8b78feccd955bb791"
+repo-rev = "roger/patch-1"
+repo-url = "https://github.com/Roger-luo/TOML.jl.git"
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.0"
 

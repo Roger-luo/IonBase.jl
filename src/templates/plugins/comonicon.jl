@@ -1,22 +1,11 @@
-module ComoniconPlugin
-
-using TOML
-using OrderedCollections
-using PkgTemplates
-using PkgTemplates: @plugin, @with_kw_noshow
-using Comonicon.Parse: default_name
-using ..IonBase: templates
-
-export Comonicon, SystemImage
-
-@plugin struct SystemImage <: PkgTemplates.Plugin
+@plugin struct SystemImage <: Plugin
     path::String="deps/lib"
     incremental::Bool=false
     filter_stdlibs::Bool=true
     cpu_target::String="x86-64"
 end
 
-@plugin struct Comonicon <: PkgTemplates.Plugin
+@plugin struct Comonicon <: Plugin
     name::Union{Nothing, String} = nothing
     # install
     completion::Bool=true
@@ -25,7 +14,7 @@ end
     optimize::Int=2
 end
 
-PkgTemplates.customizable(::Type{<:Comonicon}) = [
+customizable(::Type{<:Comonicon}) = [
     :name=>String,
     :completion=>Bool,
     :quiet=>Bool,
@@ -33,7 +22,7 @@ PkgTemplates.customizable(::Type{<:Comonicon}) = [
     :optimize=>Int
 ]
 
-PkgTemplates.customizable(::Type{<:SystemImage}) = [
+customizable(::Type{<:SystemImage}) = [
     :path=>String,
     :incremental=>Bool,
     :filter_stdlibs=>Bool,
@@ -41,18 +30,18 @@ PkgTemplates.customizable(::Type{<:SystemImage}) = [
 ]
 
 # set up deps
-function PkgTemplates.prehook(::Comonicon, ::Template, pkg_dir::AbstractString)
+function prehook(::Comonicon, ::Template, pkg_dir::AbstractString)
     if !ispath(joinpath(pkg_dir, "deps"))
         mkpath(joinpath(pkg_dir, "deps"))
     end
 end
 
 # create Comonicon.toml and build.jl
-function PkgTemplates.hook(p::Comonicon, t::Template, pkg_dir::AbstractString)
+function hook(p::Comonicon, t::Template, pkg_dir::AbstractString)
     suffix = ".jl"
     sysimg = nothing
     for each in t.plugins
-        if (each isa PkgTemplates.Git) && (each.jl == false)
+        if (each isa Git) && (each.jl == false)
             suffix = ""
         end
 
@@ -101,7 +90,7 @@ function PkgTemplates.hook(p::Comonicon, t::Template, pkg_dir::AbstractString)
     end
 end
 
-function PkgTemplates.hook(p::SystemImage, t::Template, pkg_dir::AbstractString)
+function hook(p::SystemImage, t::Template, pkg_dir::AbstractString)
     any(x->(x isa Comonicon), t.plugins) || error("SystemImage plugin must be used with Comonicon")
     workflow_dir = joinpath(pkg_dir, ".github", "workflows")
     mkpath(workflow_dir)
@@ -113,8 +102,6 @@ function PkgTemplates.hook(p::SystemImage, t::Template, pkg_dir::AbstractString)
     )
 end
 
-PkgTemplates.gitignore(::Comonicon) = ["/deps/build.log"]
-PkgTemplates.gitignore(::SystemImage) = ["/deps/lib", "/deps/precompile.jl"]
-PkgTemplates.needs_username(::Comonicon) = true
-
-end
+gitignore(::Comonicon) = ["/deps/build.log"]
+gitignore(::SystemImage) = ["/deps/lib", "/deps/precompile.jl"]
+needs_username(::Comonicon) = true

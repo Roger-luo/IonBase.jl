@@ -35,6 +35,12 @@ function templates(xs...)
     end
 end
 
+function copy_templates(dst::String=templates())
+    ispath(dst) || mkpath(dst)
+    ion_template_dir = joinpath(pkgdir(IonBase), "templates")
+    cp(ion_template_dir, dst; force=true, follow_symlinks=true)
+end
+
 ion_toml() = dot_ion("ion.toml")
 
 function init_dot_ion()
@@ -69,12 +75,13 @@ function gitcmd(path::AbstractString; kw...)
 end
 
 include("config.jl")
-
 # level 1 commands
 include("command/install.jl")
 include("command/activate.jl")
 include("command/pkg.jl")
-include("command/create.jl")
+
+# level 2 commands
+include("templates/templates.jl")
 include("command/search.jl")
 include("command/release.jl")
 include("command/clone.jl")
@@ -83,8 +90,8 @@ include("command/clone.jl")
 include("command/doc.jl")
 include("command/plugin.jl")
 
-include("precompile.jl")
-_precompile_()
+# include("precompile.jl")
+# _precompile_()
 
 # "The Ion manager."
 # @main

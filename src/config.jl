@@ -143,6 +143,11 @@ function active_julia_depots(ion::Ion=read())::Vector{String}
     end
 end
 
+function active_julia_version(ion::Ion=read())
+    julia_bin = active_julia_bin(ion)
+    return Base.eval(Meta.parse(readchomp(`$julia_bin -E 'VERSION'`)))
+end
+
 end # Options
 
 """

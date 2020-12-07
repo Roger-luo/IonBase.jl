@@ -1,68 +1,27 @@
-[project]
-version="0.1.0"
-# relative path is the path relative
-# to this template file
-src="package/src/module.jl"
+name = "comonicon"
 
-[project.test]
-file="package/test/runtests.jl"
-project=false
+[CompatHelper]
 
-[readme]
-file = "package/README.md"
-destination = "README.md"
-inline_badges = false
+[Git]
 
-[license]
-name = "MIT"
-# path= "<path to license file>"
-destination = "LICENSE"
+[License]
 
-[git]
-ignore = []
-# name = "<your name>"
-# email = "<your email>"
-# branch = "<default branch name>"
-ssh = false
-jl = true
-manifest = false
-gpgsign = false
+[ProjectFile]
 
-[github_actions]
-file = "package/github/workflows/ci.yml"
-destination = "ci.yml"
-linux=true
-osx=true
-windows=true
-x64=true
-x86=false
-coverage=true
-# extra_versions=["1.0", "1.5", "nightly"]
+[Readme]
 
-[compat_helper]
-file = "package/github/workflows/CompatHelper.yml"
-destination = "CompatHelper.yml"
-cron = "0 0 * * *"
+[SrcDir]
 
-[tag_bot]
-file = "package/github/workflows/TagBot.yml"
-destination = "TagBot.yml"
-trigger="JuliaTagBot"
-token="GITHUB_TOKEN"
-ssh="DOCUMENTER_KEY"
-# ssh_password = "abc"
-# changelog = "abc"
-# changelog_ignore = []
-# gpg = "abc"
-# gpg_password = "abc"
-# registry="<owner/repo>"
-# branches=false
-# dispatch=false
-# dispatch_delay=false
+[TagBot]
 
-[comonicon]
-name = "test"
-completion=true
-quiet=true
-compile="min"
-optimize=2
+[Tests]
+
+[GitHubActions]
+
+[Codecov]
+
+[Documenter]
+depoly = "GitHubActions"
+canonical_url = true
+
+[Comonicon]
