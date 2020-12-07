@@ -33,9 +33,9 @@ include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
     ) in plugins
     @test AppVeyor(;file=templates("package/appveyor.yml"), extra_versions=["1.0", "1.5", "nightly"]) in plugins
     @test CirrusCI(;file=templates("package/cirrus.yml"), extra_versions=["1.0", "1.5", "nightly"]) in plugins
-    @test_broken GitHubActions(;file=templates("package/github/workflows/ci.yml"), extra_versions=["1.0", "1.5", "nightly"]) in plugins
+    # @test_broken GitHubActions(;file=templates("package/github/workflows/ci.yml"), extra_versions=["1.0", "1.5", "nightly"]) in plugins
     @test GitLabCI(;file=templates("package/gitlab-ci.yml"), extra_versions=["1.0", "1.5"]) in plugins
-    @test_broken TravisCI(;file=templates("package/travis.yml"), extra_versions=["1.0", "1.5", "nightly"]) in plugins
+    # @test_broken TravisCI(;file=templates("package/travis.yml"), extra_versions=["1.0", "1.5", "nightly"]) in plugins
     @test Codecov(;file=templates("package/.codecov.yml")) in plugins
     @test Coveralls(;file=templates("package/.coveralls.yml")) in plugins
     @test Documenter(;
