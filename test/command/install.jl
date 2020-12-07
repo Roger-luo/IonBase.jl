@@ -20,13 +20,13 @@ end
 
 @testset "test real installation" begin
     with_test_ion() do
-        IonBase.install("julia"; version="stable", yes=true, cache=true)
-        IonBase.install("julia"; version="nightly", yes=true, cache=true)
-        IonBase.install("julia"; version="latest", yes=true, cache=true)
+        IonBase.install("julia", "stable";yes=true, cache=true)
+        IonBase.install("julia", "nightly"; yes=true, cache=true)
+        IonBase.install("julia", "latest"; yes=true, cache=true)
         # make sure 1.5.3 is installed
         # for later testing
-        IonBase.install("julia"; version="1.5.3", yes=true, cache=true)
-        IonBase.install("julia"; version="1.4.2", yes=true, cache=true)
+        IonBase.install("julia", "1.5.3"; yes=true, cache=true)
+        IonBase.install("julia", "1.4.2"; yes=true, cache=true)
 
         ion = Options.read()
         @test ion.julia.active === ion.julia.versions[v"1.4.2"]
