@@ -191,7 +191,7 @@ create a project or package.
 """
 @cast function create(path::String; user::String="", template::String="basic", authors::String="", host::String="github.com", force::Bool=false)
     ion = Options.read()
-    isempty(user) && (user = find_username(ion))
+    isempty(user) && (user = Templates.find_username(ion))
     julia = Options.active_julia_version(ion)
     authors = isempty(authors) ? Templates.default_authors() : map(x->String(strip(x)), split(authors, ","))
     pkg = Templates.PackagePlan(template, basename(path), user, authors, host, julia, ion)
