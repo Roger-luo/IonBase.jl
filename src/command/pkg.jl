@@ -201,7 +201,7 @@ remove it from the manifest including all recursive dependencies of pkg.
 - `-g, --glob`: enable to remove package in global shared environment
 """
 @cast function rm(pkgs...; glob::Bool=false)
-    isempty(pkgs) || cmd_error("expect package name")
+    isempty(pkgs) && cmd_error("expect package name")
     pkgs_str = join(map(x->"\"$x\"", pkgs), ", ")
     PkgCmd.withproject("Pkg.rm([$pkgs_str])", glob, "rm package")
 end

@@ -5,6 +5,7 @@ using MatchCore
 # for precompile
 using Pkg
 using GitHub
+using Comonicon.Tools: cmd_error
 
 Comonicon.set_brief_length!(120)
 

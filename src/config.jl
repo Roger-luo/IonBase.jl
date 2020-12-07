@@ -79,7 +79,7 @@ end
 
 function dump(option::Ion)
     init_dot_ion() # make sure .ion is avialable
-    to_toml(toml_convert, ion_toml(), option)
+    toml(toml_convert, ion_toml(), option)
     return
 end
 
