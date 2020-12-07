@@ -74,7 +74,7 @@ function gitcmd(path::AbstractString; kw...)
     return Cmd(cmd)
 end
 
-include("config.jl")
+include("options.jl")
 # level 1 commands
 include("command/install.jl")
 include("command/activate.jl")

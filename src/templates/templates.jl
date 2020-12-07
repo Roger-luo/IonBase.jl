@@ -153,12 +153,13 @@ function default_branch(t::PackagePlan)
     return git === nothing ? nothing : git.branch
 end
 
-function find_username(ion::Options.Ion=Options.read())
+function find_username(ion::Options.Ion=Options.read())::String
     username = LibGit2.getconfig("github.user", ion.username)
     isempty(username) || return username
     input = Base.prompt("Enter value for 'username' (String, required)")
     input === nothing && cmd_error("invalid username")
-    return input
+    ion.username = String(input)
+    return ion.username
 end
 
 function default_authors()
@@ -196,5 +197,6 @@ create a project or package.
     authors = isempty(authors) ? Templates.default_authors() : map(x->String(strip(x)), split(authors, ","))
     pkg = Templates.PackagePlan(template, basename(path), user, authors, host, julia, ion)
     Templates.create(pkg, isempty(dirname(path)) ? pwd() : dirname(path), force)
+    Options.dump(ion)
     return
 end
