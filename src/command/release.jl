@@ -13,7 +13,7 @@ using Comonicon.Tools: prompt, cmd_error
 using ..Options
 using ..PkgCmd
 using ..SearchCmd: find_max_version, collect_registries
-using ..IonBase: read_github_auth, gitcmd
+using ..IonBase: IonBase, read_github_auth, gitcmd
 
 """
     PRN{name}
@@ -301,7 +301,7 @@ function release(version::String, path::String=pwd(), registry="", branch="maste
 
         committed_changes = false
         if version != "current"
-            Registry.update()
+            IonBase.Registry.update()
             update_version!(project, version)
             commit_toml(project; push=true)
             committed_changes = true
