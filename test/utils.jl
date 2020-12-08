@@ -9,3 +9,7 @@ function with_test_ion(f)
         withenv(f, "DOT_ION_PATH"=>test_ion_dir, "COMONICON_DEBUG"=>"ON")
     end
 end
+
+with_test_ion() do
+    IonBase.copy_assets()
+end
