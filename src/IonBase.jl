@@ -52,6 +52,7 @@ function copy_cacert(dst::String=ca_roots())
 end
 
 function copy_assets(root::String=dot_ion())
+    ispath(root) || mkpath(root)
     template_dir = joinpath(root, "templates")
     @info "copying assets templates to $template_dir"
     copy_templates(template_dir)
