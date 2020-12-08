@@ -52,10 +52,12 @@ function copy_cacert(dst::String=ca_roots())
 end
 
 function copy_assets(root::String=dot_ion())
-    @info "copying assets: templates"
-    copy_templates(joinpath(root, "templates"))
-    @info "copying assets: cacert"
-    copy_cacert(joinpath(root, "cert.pem"))
+    template_dir = joinpath(root, "templates")
+    @info "copying assets templates to $template_dir"
+    copy_templates(template_dir)
+    cacert_dir = joinpath(root, "cert.pem")
+    @info "copying assets cacert to $cacert_dir"
+    copy_cacert(cacert_dir)
 end
 
 ion_toml() = dot_ion("ion.toml")
