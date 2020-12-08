@@ -214,7 +214,9 @@ function download_julia(version::String="stable", cache::Bool=false)
     end
 
     downloader = Downloader()
-    downloader.ca_roots = ca_roots()
+    @static if Sys.isapple()
+        downloader.ca_roots = ca_roots()
+    end
 
     file = download(url, file; progress=progress, downloader=downloader)
     if validate_julia_download(sha, file)
