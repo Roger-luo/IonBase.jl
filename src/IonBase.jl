@@ -51,7 +51,7 @@ function copy_cacert(dst::String=ca_roots())
     end
 end
 
-function copy_assets(root::String)
+function copy_assets(root::String=dot_ion())
     copy_templates(joinpath(root, "templates"))
     copy_cacert(joinpath(root, "cert.pem"))
 end
