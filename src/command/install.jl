@@ -108,7 +108,11 @@ end
 
 function download_julia_version_json()
     io = IOBuffer()
-    download("https://julialang-s3.julialang.org/bin/versions.json", io)
+    downloader = Downloader()
+    @static if Sys.isapple()
+        downloader.ca_roots = ca_roots()
+    end
+    download("https://julialang-s3.julialang.org/bin/versions.json", io; downloader=downloader)
     raw = JSON.parse(String(take!(io)))
     version_info = Dict{VersionNumber, Any}()
     for (k, v) in raw
