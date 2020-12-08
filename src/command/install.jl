@@ -6,8 +6,8 @@ using Crayons.Box
 using Pkg.BinaryPlatforms
 using Comonicon.Tools: prompt, cmd_error
 using SHA: sha256
-using Downloads: download
-using ..IonBase: dot_ion
+using Downloads: download, Downloader
+using ..IonBase: dot_ion, ca_roots
 using ..Options
 
 # NOTE:
@@ -213,7 +213,10 @@ function download_julia(version::String="stable", cache::Bool=false)
         return version, file
     end
 
-    file = download(url, file; progress=progress)
+    downloader = Downloader()
+    downloader.ca_roots = ca_roots()
+
+    file = download(url, file; progress=progress, downloader=downloader)
     if validate_julia_download(sha, file)
         @info "checksum: $(CYAN_FG("true"))"
     else

@@ -5,6 +5,7 @@ using MatchCore
 # for precompile
 using Pkg
 using GitHub
+using Downloads
 using Comonicon.Tools: cmd_error
 
 Comonicon.set_brief_length!(120)
@@ -26,6 +27,7 @@ function ion_dir()
 end
 
 dot_ion(xs...) = joinpath(ion_dir(), xs...)
+ca_roots() = dot_ion("cert.pem")
 
 function templates(xs...)
     if haskey(ENV, "ION_TEMPLATE_PATH")
@@ -39,6 +41,19 @@ function copy_templates(dst::String=templates())
     ispath(dst) || mkpath(dst)
     ion_template_dir = joinpath(pkgdir(IonBase), "templates")
     cp(ion_template_dir, dst; force=true, follow_symlinks=true)
+end
+
+function copy_cacert(dst::String=ca_roots())
+    # Linux is fine, we just ship julia's ca
+    # with Mac build
+    if Sys.isapple()
+        cp(Downloads.ca_roots_path(), dst; force=true, follow_symlinks=true)
+    end
+end
+
+function copy_assets()
+    copy_templates()
+    copy_cacert()
 end
 
 ion_toml() = dot_ion("ion.toml")
