@@ -7,19 +7,19 @@ using IonBase.Options
 
 include(joinpath(pkgdir(IonBase), "test", "utils.jl"))
 
-@testset "find_julia_installer_info" begin
-    version, _, _ = InstallCmd.find_julia_installer_info("stable")
-    @test version <= v"2.0.0"
-    version, _, _ = InstallCmd.find_julia_installer_info("nightly")
-    @test version == "nightly"
-    version, _, _ = InstallCmd.find_julia_installer_info("1.5.3")
-    @test version == v"1.5.3"
-    version, _, _ = InstallCmd.find_julia_installer_info("1.4")
-    @test version == v"1.4.2"
-end
+with_test_ion() do
+    @testset "find_julia_installer_info" begin
+        version, _, _ = InstallCmd.find_julia_installer_info("stable")
+        @test version <= v"2.0.0"
+        version, _, _ = InstallCmd.find_julia_installer_info("nightly")
+        @test version == "nightly"
+        version, _, _ = InstallCmd.find_julia_installer_info("1.5.3")
+        @test version == v"1.5.3"
+        version, _, _ = InstallCmd.find_julia_installer_info("1.4")
+        @test version == v"1.4.2"
+    end
 
-@testset "test real installation" begin
-    with_test_ion() do
+    @testset "test real installation" begin
         IonBase.install("julia", "stable";yes=true, cache=true)
         IonBase.install("julia", "nightly"; yes=true, cache=true)
         IonBase.install("julia", "latest"; yes=true, cache=true)
